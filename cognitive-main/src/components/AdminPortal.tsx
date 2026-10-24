@@ -18,8 +18,8 @@ import { probeBackend, BackendProbe, SUPABASE_SQL_SCHEMA, SUPABASE_PROJECT_REF, 
 import { checkPassword } from '../services/validation';
 import {
   Users, KeyRound, Trash2, Download, Database, Sliders, Activity, CheckCircle2, AlertCircle,
-  FileSpreadsheet, FileJson, Shield, GraduationCap, Copy, Check, Search, BookOpen, RefreshCw,
-  MailCheck, ExternalLink, FileText
+  FileSpreadsheet, Shield, GraduationCap, Copy, Check, Search, RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -182,29 +182,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentUser, backend }
       ];
     });
     downloadCsv('Cognitive_Performance_Scores.csv', headers, rows);
-  };
-
-  const exportTelemetry = () => {
-    const headers = ['Event ID', 'User Name', 'Session ID', 'Event Type', 'Time Spent (ms)', 'Cognitive Load', 'Timestamp', 'Details'];
-    const rows = events.map(e => {
-      const user = users.find(u => u.id === e.userId);
-      return [
-        e.id, user?.name || 'Unknown', e.sessionId, e.eventType, e.timeSpentMs,
-        e.cognitiveLoadEstimate ?? 'N/A', new Date(e.timestamp).toLocaleString(), e.details || ''
-      ];
-    });
-    downloadCsv('Raw_Telemetry_Stream.csv', headers, rows);
-  };
-
-  const exportFullJson = () => {
-    const data = { users, sessions, events, exportedAt: new Date().toISOString() };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'Full_Research_Package.json');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -391,7 +368,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentUser, backend }
         </div>
       )}
 
-      {/* TAB 2: DOWNLOAD REPORTS (The New Stuff) */}
+      {/* TAB 2: DOWNLOAD REPORTS (JUST TWO) */}
       {activeTab === 'reports' && (
         <div className="space-y-6">
           <div>
@@ -401,7 +378,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentUser, backend }
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Report 1: User Roster */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4 flex flex-col justify-between">
               <div className="space-y-2">
@@ -439,46 +416,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentUser, backend }
               >
                 <Download className="w-4 h-4" />
                 <span>Download Performance CSV</span>
-              </button>
-            </div>
-
-            {/* Report 3: Raw Telemetry */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4 flex flex-col justify-between">
-              <div className="space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
-                  <Activity className="w-5 h-5" />
-                </div>
-                <h4 className="font-bold text-slate-900 text-base">Sub-Second Interaction Telemetry</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Export granular interaction events (option clicks, choice changes, hesitation alerts, hint requests, response timing in ms).
-                </p>
-              </div>
-              <button
-                onClick={exportTelemetry}
-                className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Telemetry CSV ({events.length} Events)</span>
-              </button>
-            </div>
-
-            {/* Report 4: Full JSON */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4 flex flex-col justify-between">
-              <div className="space-y-2">
-                <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                  <FileJson className="w-5 h-5" />
-                </div>
-                <h4 className="font-bold text-slate-900 text-base">Complete Research JSON Package</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Export comprehensive hierarchical schema: full session trees, adaptation histories, user cohorts, and curriculum metadata for statistical software (R, SPSS, Python Pandas).
-                </p>
-              </div>
-              <button
-                onClick={exportFullJson}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Full JSON Dataset</span>
               </button>
             </div>
           </div>
