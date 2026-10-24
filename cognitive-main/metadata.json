@@ -1,0 +1,6 @@
+{
+  "name": "CognitiveAdapt - Behavioural Adaptive Learning System",
+  "description": "An AI-powered adaptive learning system for higher education that dynamically personalises instruction by analysing real-time cognitive interaction patterns such as response times, error frequency, and engagement levels.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
