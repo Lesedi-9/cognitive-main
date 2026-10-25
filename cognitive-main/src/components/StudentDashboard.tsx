@@ -114,10 +114,14 @@ const generateLocalMaterial = (text: string, tool: string) => {
   } 
   
   if (tool === 'Exam Predictor') {
+    const s1 = sentences[0] || "Refer to your notes.";
+    const s2 = sentences[1] || "Refer to your notes.";
+    const s3 = sentences[2] || "Refer to your notes.";
+    
     return { questions: [
-      { type: "short", text: "Define the main concept discussed in the text.", modelAnswer: sentences[0] || "Refer to notes." },
-      { type: "long", text: "Explain the relationship between the key terms in the provided text.", modelAnswer: sentences[1] || "Refer to notes." },
-      { type: "essay", text: "Critically analyze the arguments presented in the text.", modelAnswer: "Requires original thought based on the text." }
+      { type: "short", text: `Briefly explain the significance of the following statement from your notes: "${s1.substring(0, 60)}..."`, modelAnswer: s1 },
+      { type: "long", text: `Elaborate on this concept found in your text: "${s2.substring(0, 60)}..."`, modelAnswer: s2 },
+      { type: "essay", text: `Critically analyze the following idea from your notes: "${s3.substring(0, 60)}..."`, modelAnswer: s3 }
     ]};
   }
 
@@ -186,7 +190,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const [confidence, setConfidence] = useState<1 | 2 | 3 | null>(null);
   const [showBreathing, setShowBreathing] = useState(false);
 
-  // NEW: State for the Cognitive Intervention Overlay
+  // State for the Cognitive Intervention Overlay
   const [showIntervention, setShowIntervention] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -240,7 +244,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [activeSession, submittedFeedback, sessionFinished, questionStartTime]);
 
-  // THE MAGIC: Trigger intervention if they take too long
+  // Trigger intervention if they take too long
   useEffect(() => {
     if (activeSession && !submittedFeedback && !showIntervention && activeModule?.questions[currentQuestionIdx]) {
       const baseline = activeModule.questions[currentQuestionIdx].baselineExpectedSeconds || 30;
@@ -386,7 +390,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
       const newHesitationCount = hesitationCount + 1;
       setHesitationCount(newHesitationCount);
 
-      // THE MAGIC: If they hesitate 3 times, trigger the intervention!
+      // Trigger intervention if they hesitate 3 times
       if (newHesitationCount === 3) {
         setShowIntervention(true);
       }
@@ -420,7 +424,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
   const handleNextQuestion = () => {
     if (!activeModule || !activeSession) return;
-    setShowIntervention(false); // Reset intervention for next question
+    setShowIntervention(false); 
     if (currentQuestionIdx + 1 < activeModule.questions.length) {
       setCurrentQuestionIdx(prev => prev + 1);
       setSelectedOption(null); setEssayInput(''); setHesitationCount(0); setAttemptsCount(1);
@@ -450,7 +454,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     return (
       <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass} relative`}>
         
-        {/* --- THE UNIQUE FEATURE: COGNITIVE INTERVENTION OVERLAY --- */}
+        {/* COGNITIVE INTERVENTION OVERLAY */}
         {showIntervention && (
           <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="max-w-md w-full bg-[#1e1e24] border border-slate-700 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
