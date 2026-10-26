@@ -15,7 +15,7 @@ import {
   Trash2, Upload, FileText, AlertTriangle, Target, Book, Zap,
   ArrowLeft, Plus, Moon, Sun, Layers, Lightbulb, Gauge, ShieldAlert, GraduationCap, Calculator, Cpu, X,
   ListChecks, FlaskConical, Compass, Keyboard, Wind, ShieldQuestion, Timer, CheckSquare, Square, BookOpenCheck,
-  RefreshCw
+  RefreshCw, Download, FileDown, Play, User as UserIcon, Phone, MapPin
 } from 'lucide-react';
 
 import mammoth from 'mammoth';
@@ -40,53 +40,173 @@ interface Flashcard { front: string; back: string; }
 const curriculumBase = {
   'Mathematics': {
     'Linear Equations': [
-      { id: 'math-lin-01', code: 'MATH-101', title: 'Solving Linear Equations', description: 'Isolate variables and solve for x.', academicDiscipline: 'Mathematics', estimatedMinutes: 15, 
+      {
+        id: 'math-lin-01', code: 'MATH-101', title: 'Linear Equations',
+        description: 'Solve single-variable equations and understand slope-intercept form.',
+        academicDiscipline: 'Mathematics', estimatedMinutes: 15,
         questions: [
-          { id: 'm1', text: 'Solve for x: 2x + 4 = 10', options: ['x = 2', 'x = 3', 'x = 4', 'x = 5'], correctAnswerIndex: 1, explanation: 'Subtract 4 from both sides (2x = 6), then divide by 2 (x = 3).', targetConcept: 'Linear Equations', baselineExpectedSeconds: 30, scaffoldHint: 'Isolate x by subtracting 4 first.', type: 'mcq' }
-        ] 
+          { id: 'm1', text: 'Solve for x: 2x + 4 = 10', options: ['x = 2', 'x = 3', 'x = 4', 'x = 5'], correctAnswerIndex: 1, explanation: 'Subtract 4 from both sides (2x = 6), then divide by 2 (x = 3).', targetConcept: 'Linear Equations', baselineExpectedSeconds: 25, scaffoldHint: 'Isolate x by subtracting 4 first.', type: 'mcq' },
+          { id: 'm2', text: 'Solve for x: 3x - 7 = 14', options: ['x = 5', 'x = 6', 'x = 7', 'x = 8'], correctAnswerIndex: 2, explanation: 'Add 7 to both sides (3x = 21), then divide by 3 (x = 7).', targetConcept: 'Linear Equations', baselineExpectedSeconds: 30, scaffoldHint: 'Add 7 to both sides first.', type: 'mcq' },
+          { id: 'm3', text: 'Solve for x: x/4 + 2 = 5', options: ['x = 8', 'x = 10', 'x = 12', 'x = 14'], correctAnswerIndex: 2, explanation: 'Subtract 2 (x/4 = 3), then multiply by 4 (x = 12).', targetConcept: 'Fractions in Equations', baselineExpectedSeconds: 35, scaffoldHint: 'Undo the addition first, then the division.', type: 'mcq' },
+          { id: 'm4', text: 'Solve for x: 5(x - 2) = 20', options: ['x = 4', 'x = 5', 'x = 6', 'x = 7'], correctAnswerIndex: 2, explanation: 'Divide by 5 (x - 2 = 4), then add 2 (x = 6).', targetConcept: 'Distributive Property', baselineExpectedSeconds: 35, scaffoldHint: 'Divide by 5 first to keep it simple.', type: 'mcq' },
+          { id: 'm5', text: 'What is the slope of the line y = 3x - 2?', options: ['3', '-2', '2', '-3'], correctAnswerIndex: 0, explanation: 'In y = mx + b, m is the slope. Here m = 3.', targetConcept: 'Slope', baselineExpectedSeconds: 20, scaffoldHint: 'Slope is the coefficient of x.', type: 'mcq' },
+          { id: 'm6', text: 'Solve for x: 2(x + 3) = 3(x - 1)', options: ['x = 6', 'x = 7', 'x = 8', 'x = 9'], correctAnswerIndex: 3, explanation: 'Expand: 2x + 6 = 3x - 3 → 9 = x.', targetConcept: 'Multi-step Equations', baselineExpectedSeconds: 45, scaffoldHint: 'Expand both sides then collect x terms.', type: 'mcq' },
+          { id: 'm7', text: 'If 4x + 2y = 20 and x = 3, what is y?', options: ['2', '3', '4', '5'], correctAnswerIndex: 2, explanation: 'Substitute x = 3: 12 + 2y = 20 → 2y = 8 → y = 4.', targetConcept: 'Substitution', baselineExpectedSeconds: 35, scaffoldHint: 'Plug in x first, then solve for y.', type: 'mcq' },
+        ]
+      }
+    ],
+    'Fractions & Decimals': [
+      {
+        id: 'math-frac-01', code: 'MATH-102', title: 'Fractions & Decimals',
+        description: 'Add, multiply, simplify, and convert fractions and decimals.',
+        academicDiscipline: 'Mathematics', estimatedMinutes: 12,
+        questions: [
+          { id: 'mf1', text: 'What is 1/2 + 1/3?', options: ['2/5', '3/5', '5/6', '2/6'], correctAnswerIndex: 2, explanation: 'Use a common denominator of 6: 3/6 + 2/6 = 5/6.', targetConcept: 'Adding Fractions', baselineExpectedSeconds: 25, scaffoldHint: 'Find a common denominator.', type: 'mcq' },
+          { id: 'mf2', text: 'Convert 0.75 to a fraction.', options: ['1/2', '3/4', '2/3', '7/8'], correctAnswerIndex: 1, explanation: '0.75 = 75/100, which simplifies to 3/4.', targetConcept: 'Decimal Conversion', baselineExpectedSeconds: 20, scaffoldHint: 'Think of 75 out of 100.', type: 'mcq' },
+          { id: 'mf3', text: 'What is 2/3 × 3/4?', options: ['1/2', '2/3', '5/7', '6/7'], correctAnswerIndex: 0, explanation: 'Multiply numerators and denominators: 6/12 = 1/2.', targetConcept: 'Multiplying Fractions', baselineExpectedSeconds: 25, scaffoldHint: 'Multiply across then simplify.', type: 'mcq' },
+          { id: 'mf4', text: 'What is 0.25 + 0.5?', options: ['0.65', '0.75', '0.85', '0.55'], correctAnswerIndex: 1, explanation: '0.25 + 0.50 = 0.75.', targetConcept: 'Adding Decimals', baselineExpectedSeconds: 15, scaffoldHint: 'Align the decimal points.', type: 'mcq' },
+          { id: 'mf5', text: 'Which is larger: 3/5 or 4/7?', options: ['3/5', '4/7', 'Equal', 'Cannot determine'], correctAnswerIndex: 0, explanation: '3/5 = 0.6, 4/7 ≈ 0.571. So 3/5 is larger.', targetConcept: 'Comparing Fractions', baselineExpectedSeconds: 30, scaffoldHint: 'Convert both to decimals.', type: 'mcq' },
+          { id: 'mf6', text: 'Simplify 12/18.', options: ['2/3', '3/4', '4/6', '6/9'], correctAnswerIndex: 0, explanation: 'The greatest common divisor is 6, so 12/18 = 2/3.', targetConcept: 'Simplifying', baselineExpectedSeconds: 25, scaffoldHint: 'Find the largest number that divides both.', type: 'mcq' },
+        ]
+      }
+    ],
+    'Geometry Basics': [
+      {
+        id: 'math-geom-01', code: 'MATH-103', title: 'Geometry Basics',
+        description: 'Area, perimeter, angles, and the Pythagorean theorem.',
+        academicDiscipline: 'Mathematics', estimatedMinutes: 12,
+        questions: [
+          { id: 'mg1', text: 'What is the area of a rectangle with length 5 and width 3?', options: ['8', '15', '16', '30'], correctAnswerIndex: 1, explanation: 'Area = length × width = 5 × 3 = 15.', targetConcept: 'Rectangle Area', baselineExpectedSeconds: 15, scaffoldHint: 'Multiply length by width.', type: 'mcq' },
+          { id: 'mg2', text: 'What is the sum of interior angles of a triangle?', options: ['90°', '180°', '270°', '360°'], correctAnswerIndex: 1, explanation: 'The sum of a triangle\'s interior angles is always 180°.', targetConcept: 'Triangle Angles', baselineExpectedSeconds: 15, scaffoldHint: 'It\'s a fixed value for every triangle.', type: 'mcq' },
+          { id: 'mg3', text: 'A circle has a radius of 4. What is its diameter?', options: ['2', '4', '8', '16'], correctAnswerIndex: 2, explanation: 'Diameter = 2 × radius = 8.', targetConcept: 'Circles', baselineExpectedSeconds: 15, scaffoldHint: 'Diameter is twice the radius.', type: 'mcq' },
+          { id: 'mg4', text: 'The Pythagorean theorem states a² + b² = ?', options: ['c', 'c²', '2c', 'ab'], correctAnswerIndex: 1, explanation: 'For a right triangle, a² + b² = c² where c is the hypotenuse.', targetConcept: 'Pythagorean Theorem', baselineExpectedSeconds: 20, scaffoldHint: 'It relates the squares of the sides.', type: 'mcq' },
+          { id: 'mg5', text: 'What is the perimeter of a square with side length 6?', options: ['12', '18', '24', '36'], correctAnswerIndex: 2, explanation: 'Perimeter = 4 × side = 4 × 6 = 24.', targetConcept: 'Perimeter', baselineExpectedSeconds: 15, scaffoldHint: 'A square has 4 equal sides.', type: 'mcq' },
+          { id: 'mg6', text: 'If a right triangle has legs 3 and 4, what is the hypotenuse?', options: ['5', '6', '7', '25'], correctAnswerIndex: 0, explanation: 'c² = 3² + 4² = 9 + 16 = 25, so c = 5.', targetConcept: 'Pythagorean Theorem', baselineExpectedSeconds: 30, scaffoldHint: 'Square the legs, add, then take the square root.', type: 'mcq' },
+        ]
       }
     ]
   },
   'Computer Science': {
     'Algorithms': [
-      { id: 'cs-alg-01', code: 'CS-101', title: 'Binary Search & Complexity', description: 'Understand searching algorithms.', academicDiscipline: 'Computer Science', estimatedMinutes: 15, 
+      {
+        id: 'cs-alg-01', code: 'CS-101', title: 'Algorithms',
+        description: 'Searching, sorting, and complexity analysis.',
+        academicDiscipline: 'Computer Science', estimatedMinutes: 15,
         questions: [
-          { id: 'c1', text: 'What is the time complexity of binary search?', options: ['O(n)', 'O(log n)', 'O(n log n)', 'O(1)'], correctAnswerIndex: 1, explanation: 'Binary search halves the search space each time.', targetConcept: 'Complexity', baselineExpectedSeconds: 20, scaffoldHint: 'Think about how many times you can divide an array in half.', type: 'mcq' }
-        ] 
+          { id: 'c1', text: 'What is the time complexity of binary search?', options: ['O(n)', 'O(log n)', 'O(n log n)', 'O(1)'], correctAnswerIndex: 1, explanation: 'Binary search halves the search space each time, giving O(log n).', targetConcept: 'Complexity', baselineExpectedSeconds: 20, scaffoldHint: 'Think about how many times you can halve an array.', type: 'mcq' },
+          { id: 'c2', text: 'Which sorting algorithm is typically fastest on average?', options: ['Bubble sort', 'Selection sort', 'Quick sort', 'Insertion sort'], correctAnswerIndex: 2, explanation: 'Quick sort averages O(n log n), while the others are typically O(n²).', targetConcept: 'Sorting', baselineExpectedSeconds: 30, scaffoldHint: 'Look for the algorithm with O(n log n) average complexity.', type: 'mcq' },
+          { id: 'c3', text: 'What data structure does BFS (breadth-first search) use?', options: ['Stack', 'Queue', 'Heap', 'Tree'], correctAnswerIndex: 1, explanation: 'BFS explores level by level, using a queue (FIFO).', targetConcept: 'Graph Traversal', baselineExpectedSeconds: 25, scaffoldHint: 'Which structure gives FIFO behavior?', type: 'mcq' },
+          { id: 'c4', text: 'What is the time complexity of linear search?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'], correctAnswerIndex: 2, explanation: 'Linear search may inspect every element, so it\'s O(n).', targetConcept: 'Complexity', baselineExpectedSeconds: 20, scaffoldHint: 'Worst case you check every element.', type: 'mcq' },
+          { id: 'c5', text: 'What is the worst-case complexity of Quick sort?', options: ['O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)'], correctAnswerIndex: 2, explanation: 'With poor pivot choices, Quick sort degrades to O(n²).', targetConcept: 'Complexity', baselineExpectedSeconds: 30, scaffoldHint: 'Think about a sorted input with a bad pivot.', type: 'mcq' },
+          { id: 'c6', text: 'Which algorithm finds the shortest path in a weighted graph?', options: ['BFS', 'DFS', 'Dijkstra', 'Kruskal'], correctAnswerIndex: 2, explanation: 'Dijkstra\'s algorithm computes shortest paths in weighted graphs.', targetConcept: 'Graph Algorithms', baselineExpectedSeconds: 30, scaffoldHint: 'It\'s named after a famous Dutch computer scientist.', type: 'mcq' },
+          { id: 'c7', text: 'What is dynamic programming primarily used for?', options: ['Sorting', 'Optimizing overlapping subproblems', 'Randomization', 'Hashing'], correctAnswerIndex: 1, explanation: 'DP caches solutions to overlapping subproblems to avoid recomputation.', targetConcept: 'Dynamic Programming', baselineExpectedSeconds: 35, scaffoldHint: 'Think of memoization.', type: 'mcq' },
+        ]
+      }
+    ],
+    'Data Structures': [
+      {
+        id: 'cs-ds-01', code: 'CS-102', title: 'Data Structures',
+        description: 'Stacks, queues, trees, heaps, and arrays.',
+        academicDiscipline: 'Computer Science', estimatedMinutes: 12,
+        questions: [
+          { id: 'cd1', text: 'Which data structure uses FIFO (First In, First Out)?', options: ['Stack', 'Queue', 'Tree', 'Graph'], correctAnswerIndex: 1, explanation: 'A queue removes the earliest added element first.', targetConcept: 'Queues', baselineExpectedSeconds: 20, scaffoldHint: 'Think of a line at a store.', type: 'mcq' },
+          { id: 'cd2', text: 'A stack uses which order?', options: ['FIFO', 'LIFO', 'Random', 'Priority'], correctAnswerIndex: 1, explanation: 'Stacks use Last In, First Out.', targetConcept: 'Stacks', baselineExpectedSeconds: 20, scaffoldHint: 'Think of a stack of plates.', type: 'mcq' },
+          { id: 'cd3', text: 'What is the time complexity to access an array element by index?', options: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], correctAnswerIndex: 0, explanation: 'Array access by index is constant time.', targetConcept: 'Arrays', baselineExpectedSeconds: 25, scaffoldHint: 'Indexing is a direct pointer arithmetic.', type: 'mcq' },
+          { id: 'cd4', text: 'Which data structure is best for implementing a priority queue?', options: ['Array', 'Linked list', 'Heap', 'Stack'], correctAnswerIndex: 2, explanation: 'A binary heap gives O(log n) insert and extract-min operations.', targetConcept: 'Heaps', baselineExpectedSeconds: 30, scaffoldHint: 'Think of a partially ordered tree.', type: 'mcq' },
+          { id: 'cd5', text: 'In a binary search tree, what is the in-order traversal order?', options: ['Root, left, right', 'Left, root, right', 'Left, right, root', 'Right, root, left'], correctAnswerIndex: 1, explanation: 'In-order visits left subtree, then root, then right subtree.', targetConcept: 'BST Traversal', baselineExpectedSeconds: 35, scaffoldHint: 'In-order returns sorted values.', type: 'mcq' },
+          { id: 'cd6', text: 'What is the maximum number of children a node in a binary tree can have?', options: ['1', '2', '3', '4'], correctAnswerIndex: 1, explanation: 'Binary means at most two children per node.', targetConcept: 'Binary Trees', baselineExpectedSeconds: 15, scaffoldHint: '"Binary" implies two.', type: 'mcq' },
+        ]
+      }
+    ],
+    'Programming Logic': [
+      {
+        id: 'cs-logic-01', code: 'CS-103', title: 'Programming Logic',
+        description: 'Loops, conditionals, functions, and recursion.',
+        academicDiscipline: 'Computer Science', estimatedMinutes: 12,
+        questions: [
+          { id: 'cl1', text: 'What does a "for" loop do?', options: ['Repeats code until a condition is false', 'Runs once', 'Defines a function', 'Creates a variable'], correctAnswerIndex: 0, explanation: 'A for loop iterates while its condition holds.', targetConcept: 'Loops', baselineExpectedSeconds: 20, scaffoldHint: 'It is iterative.', type: 'mcq' },
+          { id: 'cl2', text: 'What is a variable?', options: ['A fixed constant', 'A named storage location', 'A function', 'A loop'], correctAnswerIndex: 1, explanation: 'Variables store values under a name.', targetConcept: 'Variables', baselineExpectedSeconds: 20, scaffoldHint: 'It has a name and a value.', type: 'mcq' },
+          { id: 'cl3', text: 'What does an "if" statement do?', options: ['Loops', 'Executes code conditionally', 'Defines a class', 'Returns a value'], correctAnswerIndex: 1, explanation: 'An if statement branches based on a condition.', targetConcept: 'Conditionals', baselineExpectedSeconds: 20, scaffoldHint: 'It decides whether to run code.', type: 'mcq' },
+          { id: 'cl4', text: 'What is a function?', options: ['A variable', 'A reusable block of code', 'A loop', 'A class'], correctAnswerIndex: 1, explanation: 'Functions group reusable logic with a name.', targetConcept: 'Functions', baselineExpectedSeconds: 20, scaffoldHint: 'It can be called multiple times.', type: 'mcq' },
+          { id: 'cl5', text: 'What is recursion?', options: ['A function calling itself', 'A loop', 'An error', 'A variable'], correctAnswerIndex: 0, explanation: 'Recursion is when a function calls itself, usually on a smaller input.', targetConcept: 'Recursion', baselineExpectedSeconds: 25, scaffoldHint: 'Base case stops it.', type: 'mcq' },
+          { id: 'cl6', text: 'What does "return" do in a function?', options: ['Starts a loop', 'Outputs a value from the function', 'Declares a variable', 'Prints to console'], correctAnswerIndex: 1, explanation: 'return exits the function and provides its result.', targetConcept: 'Functions', baselineExpectedSeconds: 20, scaffoldHint: 'It hands back a result.', type: 'mcq' },
+        ]
       }
     ]
   },
   'Science': {
-    'Physics': [
-      { id: 'sci-phys-01', code: 'PHYS-105', title: 'Newton\'s Laws', description: 'Explore force, mass, and acceleration.', academicDiscipline: 'Science', estimatedMinutes: 15, 
+    "Physics: Newton's Laws": [
+      {
+        id: 'sci-phys-01', code: 'PHYS-105', title: "Physics: Newton's Laws",
+        description: 'Force, mass, acceleration, and inertia.',
+        academicDiscipline: 'Science', estimatedMinutes: 12,
         questions: [
-          { id: 's1', text: 'What is the formula for Newton\'s Second Law?', options: ['E = mc²', 'F = ma', 'V = IR', 'a² + b² = c²'], correctAnswerIndex: 1, explanation: 'Force equals mass times acceleration.', targetConcept: 'Newton\'s Laws', baselineExpectedSeconds: 15, scaffoldHint: 'Force is equal to mass multiplied by acceleration.', type: 'mcq' }
-        ] 
+          { id: 'sp1', text: "What is the formula for Newton's Second Law?", options: ['E = mc²', 'F = ma', 'V = IR', 'a² + b² = c²'], correctAnswerIndex: 1, explanation: 'Force equals mass times acceleration.', targetConcept: "Newton's Laws", baselineExpectedSeconds: 15, scaffoldHint: 'Force is equal to mass multiplied by acceleration.', type: 'mcq' },
+          { id: 'sp2', text: "Newton's First Law is also known as the law of what?", options: ['Motion', 'Inertia', 'Gravity', 'Acceleration'], correctAnswerIndex: 1, explanation: 'An object at rest stays at rest unless acted upon — the law of inertia.', targetConcept: 'Inertia', baselineExpectedSeconds: 20, scaffoldHint: 'It describes resistance to change in motion.', type: 'mcq' },
+          { id: 'sp3', text: 'For every action, there is an equal and opposite what?', options: ['Force', 'Reaction', 'Acceleration', 'Mass'], correctAnswerIndex: 1, explanation: "Newton's Third Law: for every action there is an equal and opposite reaction.", targetConcept: "Newton's Third Law", baselineExpectedSeconds: 15, scaffoldHint: 'It pairs with the word "action".', type: 'mcq' },
+          { id: 'sp4', text: 'What is the SI unit of force?', options: ['Joule', 'Newton', 'Watt', 'Pascal'], correctAnswerIndex: 1, explanation: 'Force is measured in newtons (N).', targetConcept: 'Units', baselineExpectedSeconds: 20, scaffoldHint: 'Named after the same scientist.', type: 'mcq' },
+          { id: 'sp5', text: 'If a 10 kg object accelerates at 2 m/s², what is the force?', options: ['5 N', '12 N', '20 N', '100 N'], correctAnswerIndex: 2, explanation: 'F = ma = 10 × 2 = 20 N.', targetConcept: 'Applying F = ma', baselineExpectedSeconds: 30, scaffoldHint: 'Multiply mass by acceleration.', type: 'mcq' },
+          { id: 'sp6', text: 'What is inertia?', options: ['Resistance to change in motion', 'A force', 'An acceleration', 'A mass'], correctAnswerIndex: 0, explanation: 'Inertia is an object\'s resistance to changes in its state of motion.', targetConcept: 'Inertia', baselineExpectedSeconds: 25, scaffoldHint: 'It is about resisting change.', type: 'mcq' },
+        ]
+      }
+    ],
+    'Chemistry: Atomic Structure': [
+      {
+        id: 'sci-chem-01', code: 'CHEM-101', title: 'Chemistry: Atomic Structure',
+        description: 'Protons, neutrons, electrons, and atomic number.',
+        academicDiscipline: 'Science', estimatedMinutes: 12,
+        questions: [
+          { id: 'sc1', text: 'What is the charge of an electron?', options: ['Positive', 'Negative', 'Neutral', 'Variable'], correctAnswerIndex: 1, explanation: 'Electrons carry a negative charge.', targetConcept: 'Subatomic Particles', baselineExpectedSeconds: 15, scaffoldHint: 'Opposite of a proton.', type: 'mcq' },
+          { id: 'sc2', text: 'What is the charge of a proton?', options: ['Positive', 'Negative', 'Neutral', 'Variable'], correctAnswerIndex: 0, explanation: 'Protons carry a positive charge.', targetConcept: 'Subatomic Particles', baselineExpectedSeconds: 15, scaffoldHint: 'Opposite of an electron.', type: 'mcq' },
+          { id: 'sc3', text: 'Where are neutrons located in an atom?', options: ['In the electron cloud', 'In the nucleus', 'Outside the atom', 'In the orbitals'], correctAnswerIndex: 1, explanation: 'Neutrons and protons form the nucleus.', targetConcept: 'Atomic Structure', baselineExpectedSeconds: 20, scaffoldHint: 'They sit next to protons.', type: 'mcq' },
+          { id: 'sc4', text: 'What does the atomic number represent?', options: ['Number of neutrons', 'Number of protons', 'Number of electrons', 'Total particles'], correctAnswerIndex: 1, explanation: 'The atomic number is the number of protons in the nucleus.', targetConcept: 'Atomic Number', baselineExpectedSeconds: 25, scaffoldHint: 'It uniquely identifies an element.', type: 'mcq' },
+          { id: 'sc5', text: 'Which subatomic particle has no charge?', options: ['Proton', 'Electron', 'Neutron', 'Photon'], correctAnswerIndex: 2, explanation: 'Neutrons are electrically neutral.', targetConcept: 'Subatomic Particles', baselineExpectedSeconds: 15, scaffoldHint: 'Its name hints at neutral.', type: 'mcq' },
+          { id: 'sc6', text: 'An atom with 11 protons and 12 neutrons has a mass number of what?', options: ['11', '12', '23', '1'], correctAnswerIndex: 2, explanation: 'Mass number = protons + neutrons = 11 + 12 = 23.', targetConcept: 'Mass Number', baselineExpectedSeconds: 25, scaffoldHint: 'Add the nucleons together.', type: 'mcq' },
+        ]
+      }
+    ],
+    'Biology: Cell Structure': [
+      {
+        id: 'sci-bio-01', code: 'BIO-101', title: 'Biology: Cell Structure',
+        description: 'Organelles and their functions.',
+        academicDiscipline: 'Science', estimatedMinutes: 12,
+        questions: [
+          { id: 'sb1', text: 'What is the "powerhouse" of the cell?', options: ['Nucleus', 'Mitochondria', 'Ribosome', 'Golgi'], correctAnswerIndex: 1, explanation: 'Mitochondria produce ATP, the cell\'s energy currency.', targetConcept: 'Organelles', baselineExpectedSeconds: 15, scaffoldHint: 'It generates energy.', type: 'mcq' },
+          { id: 'sb2', text: 'What controls the cell\'s activities?', options: ['Cell membrane', 'Nucleus', 'Cytoplasm', 'Vacuole'], correctAnswerIndex: 1, explanation: 'The nucleus contains DNA and directs cellular activity.', targetConcept: 'Nucleus', baselineExpectedSeconds: 15, scaffoldHint: 'It holds the genetic material.', type: 'mcq' },
+          { id: 'sb3', text: 'What is the function of the cell membrane?', options: ['Energy production', 'Regulating what enters and exits', 'Protein synthesis', 'Storage'], correctAnswerIndex: 1, explanation: 'The membrane is selectively permeable, controlling traffic in and out.', targetConcept: 'Cell Membrane', baselineExpectedSeconds: 20, scaffoldHint: 'It is a gatekeeper.', type: 'mcq' },
+          { id: 'sb4', text: 'Where does protein synthesis occur?', options: ['Nucleus', 'Ribosome', 'Mitochondria', 'Golgi'], correctAnswerIndex: 1, explanation: 'Ribosomes translate mRNA into proteins.', targetConcept: 'Ribosomes', baselineExpectedSeconds: 25, scaffoldHint: 'The site of translation.', type: 'mcq' },
+          { id: 'sb5', text: 'Which structure is found in plant cells but not animal cells?', options: ['Nucleus', 'Mitochondria', 'Cell wall', 'Ribosome'], correctAnswerIndex: 2, explanation: 'Plant cells have a rigid cell wall; animal cells do not.', targetConcept: 'Plant vs Animal Cells', baselineExpectedSeconds: 20, scaffoldHint: 'It gives structural support.', type: 'mcq' },
+          { id: 'sb6', text: 'What is the main function of the vacuole?', options: ['Energy production', 'Storage', 'Protein synthesis', 'Digestion'], correctAnswerIndex: 1, explanation: 'Vacuoles store water, nutrients, and waste.', targetConcept: 'Vacuoles', baselineExpectedSeconds: 20, scaffoldHint: 'It is a container.', type: 'mcq' },
+        ]
       }
     ]
   }
 } as Record<string, Record<string, LearningModule[]>>;
 
 const generateLocalMaterial = (text: string, tool: string, config: any = {}) => {
+  if (!text || text.trim().length < 100) {
+    throw new Error("Not enough text provided. Please paste at least a few paragraphs.");
+  }
+
   const cleanText = text.replace(/(\s+\d+\.?\s*$)/gm, '').replace(/^(TOPIC|CHAPTER|SECTION|UNIT|PART)\s*\d+.*$/gim, ''); 
-  let rawSentences = cleanText.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
   
-  let sentences = rawSentences.filter(s => {
-    const trimmed = s.trim();
-    return trimmed.length > 40 && trimmed.split(' ').length > 6 && !(trimmed === trimmed.toUpperCase()); 
+  let sentences = cleanText.match(/[^.!?\n]+[.!?]+/g) || cleanText.split('\n');
+  
+  sentences = sentences.map(s => s.trim()).filter(s => {
+    return s.length > 30 && s.split(' ').length > 5 && !(s === s.toUpperCase()); 
   });
+
+  if (sentences.length === 0) {
+    throw new Error("Could not extract readable sentences from the text. Try a different file or paste text manually.");
+  }
 
   sentences = sentences.sort(() => Math.random() - 0.5);
 
-  if (sentences.length === 0) {
-    return { questions: [{ type: "mcq", text: "Not enough readable text found.", options: ["OK"], correctAnswerIndex: 0, explanation: "Please try a different document.", scaffoldHint: "Try uploading a longer document." }] };
-  }
-
   if (tool === 'Flashcard') {
-    const cards = sentences.slice(0, 8).map(s => {
+    const cards = sentences.slice(0, Math.min(10, sentences.length)).map(s => {
       const words = s.split(' ').map(w => w.replace(/[^a-zA-Z0-9]/g, ''));
       const keyword = [...words].sort((a, b) => b.length - a.length).find(w => w.length > 5) || 'concept';
-      return { front: `Explain the concept of "${keyword}".`, back: s.trim() };
+      return { front: `What can you recall about "${keyword}"?`, back: s };
     });
     return { flashcards: cards };
   } 
@@ -94,37 +214,58 @@ const generateLocalMaterial = (text: string, tool: string, config: any = {}) => 
   const numQuestions = Math.min(config.questions || 5, sentences.length);
   const difficulty = config.difficulty || 'introductory';
   const questions = [];
-  
+
   for (let i = 0; i < numQuestions; i++) {
     const s = sentences[i];
+    const words = s.split(' ').filter(w => w.length > 4);
+    if (words.length === 0) continue;
     
-    if (difficulty === 'introductory') {
-      const words = s.split(' ');
-      const longWord = [...words].sort((a, b) => b.length - a.length).find(w => w.length > 5) || words[Math.floor(words.length/2)];
-      const blanked = s.replace(longWord, '______');
-      const distractors = ["concept", "algorithm", "process", "system"].filter(w => w !== longWord).slice(0, 3);
-      const options = [longWord, ...distractors].sort(() => Math.random() - 0.5);
+    const longWord = [...words].sort((a, b) => b.length - a.length)[0];
+    const cleanWord = longWord.replace(/[^a-zA-Z0-9]/g, '');
+    
+    if (difficulty === 'introductory' || difficulty === 'intermediate') {
+      const blanked = s.replace(cleanWord, '______');
+      const distractors = ["analysis", "structure", "process", "system", "concept", "element"].filter(w => w.toLowerCase() !== cleanWord.toLowerCase()).slice(0, 3);
+      const options = [cleanWord, ...distractors].sort(() => Math.random() - 0.5);
       
       questions.push({ 
-        type: "mcq", text: `Complete the sentence: "${blanked}"`, options, correctAnswerIndex: options.indexOf(longWord), explanation: s, scaffoldHint: "Look at the surrounding words for context clues." 
+        type: "mcq", 
+        text: `Fill in the blank: "${blanked}"`, 
+        options, 
+        correctAnswerIndex: options.indexOf(cleanWord), 
+        explanation: `The correct answer is "${cleanWord}". Original text: "${s}"`, 
+        scaffoldHint: "Look at the surrounding words for grammatical and contextual clues." 
       });
     } else {
       questions.push({ 
-        type: "mcq", text: `What is the significance of the following statement: "${s.substring(0, 80)}..."`, 
-        options: ["It is a core concept", "It is irrelevant", "It is a contradiction", "It is a minor detail"], 
-        correctAnswerIndex: 0, explanation: s, scaffoldHint: "Consider the main theme of the text." 
+        type: "mcq", 
+        text: `Which of the following best summarizes the following statement: "${s.substring(0, 100)}..."`, 
+        options: [
+          "It describes a key theoretical concept.", 
+          "It provides a historical context.", 
+          "It outlines a practical procedure.", 
+          "It highlights a potential limitation."
+        ], 
+        correctAnswerIndex: 0, 
+        explanation: `The statement focuses on a core concept. Full text: "${s}"`, 
+        scaffoldHint: "Consider the primary focus of the sentence." 
       });
     }
   }
+  
+  if (questions.length === 0) {
+     throw new Error("Could not generate questions from the provided text.");
+  }
+  
   return { questions };
 };
 
 const calculateCLI = (timeTaken: number, baseline: number, hesitations: number, isCorrect: boolean) => {
   let score = 10;
-  if (!isCorrect) score += 40; 
-  if (timeTaken > baseline * 1.5) score += 20; 
-  if (timeTaken > baseline * 2.5) score += 20; 
-  if (hesitations > 0) score += (hesitations * 10); 
+  if (!isCorrect) score += 40;
+  if (timeTaken > baseline * 1.5) score += 20;
+  if (timeTaken > baseline * 2.5) score += 20;
+  if (hesitations > 0) score += (hesitations * 10);
   return Math.min(100, score);
 };
 
@@ -134,19 +275,40 @@ const SUBJECT_ICONS: Record<string, React.ReactNode> = {
   'Science': <FlaskConical className="w-6 h-6" />
 };
 
+const isCurriculumModule = (mod: LearningModule): boolean => {
+  for (const subject of Object.values(curriculumBase)) {
+    for (const subtopic of Object.values(subject)) {
+      if (subtopic.some(m => m.id === mod.id)) return true;
+    }
+  }
+  return false;
+};
+
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const [sessions, setSessions] = useState<LearningSession[]>([]);
   const [activeTab, setActiveTab] = useState<DashboardTab>('dashboard');
-  
+
   const [theme, setTheme] = useState<ThemeMode>(() => (localStorage.getItem('app_theme') as ThemeMode) || 'dark');
   const isDark = theme === 'dark';
 
-  const [autoDifficulty, setAutoDifficulty] = useState<Difficulty>('introductory');
   const [isManualOverride, setIsManualOverride] = useState(false);
   const [manualDifficulty, setManualDifficulty] = useState<Difficulty>('introductory');
 
+  const [hasCalibrated, setHasCalibrated] = useState<boolean>(() => localStorage.getItem(`cognitive_calibrated_${user.id}`) === 'true');
+  const [lastCalibration, setLastCalibration] = useState<Difficulty | null>(null);
+  const [calibrationScore, setCalibrationScore] = useState<number | null>(() => {
+    const saved = localStorage.getItem(`calibration_score_${user.id}`);
+    return saved ? Number(saved) : null;
+  });
+
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'x-large'>('normal');
   const [highContrast, setHighContrast] = useState(false);
+
+  // Profile State (Validation)
+  const [profileName, setProfileName] = useState(user.name);
+  const [profilePhone, setProfilePhone] = useState(() => localStorage.getItem(`profile_phone_${user.id}`) || '');
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
 
   const [customModules, setCustomModules] = useState<LearningModule[]>([]);
   const [customFlashcards, setCustomFlashcards] = useState<Flashcard[]>([]);
@@ -161,11 +323,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
   const [currentCardIdx, setCurrentCardIdx] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showFlashcardViewer, setShowFlashcardViewer] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   const [activeSession, setActiveSession] = useState<LearningSession | null>(null);
   const [activeModule, setActiveModule] = useState<LearningModule | null>(null);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  
+
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [essayInput, setEssayInput] = useState('');
   const [hesitationCount, setHesitationCount] = useState(0);
@@ -185,32 +349,112 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const [examConfig, setExamConfig] = useState({ questions: 10, timer: 30 });
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
+  const [libraryFilter, setLibraryFilter] = useState<'All' | 'Flashcard sets' | 'Practice tests'>('All');
+  const [viewingPastSession, setViewingPastSession] = useState<{module: LearningModule, session: LearningSession} | null>(null);
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
-  // FAIL-SAFE: If isGenerating is true for more than 12 seconds, reset.
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isGenerating) {
-      timer = setTimeout(() => {
-        setIsGenerating(false);
-        setAiError("The AI request took too long. The system has reset. Please try again.");
-      }, 12000); 
-    }
-    return () => clearTimeout(timer);
-  }, [isGenerating]);
-
   useEffect(() => {
     refreshUserSessions();
-    const saved = localStorage.getItem('custom_study_modules');
+    const saved = localStorage.getItem(`custom_study_modules_${user.id}`);
     if (saved) { try { setCustomModules(JSON.parse(saved)); } catch (e) { console.error(e); } }
-    const savedCards = localStorage.getItem('custom_flashcards');
+    const savedCards = localStorage.getItem(`custom_flashcards_${user.id}`);
     if (savedCards) { try { setCustomFlashcards(JSON.parse(savedCards)); } catch (e) { console.error(e); } }
+    
+    // Show tour on first visit
+    if (!localStorage.getItem(`tour_seen_${user.id}`)) {
+      setShowTour(true);
+    }
   }, [user.id]);
 
   useEffect(() => { localStorage.setItem('app_theme', theme); }, [theme]);
 
   const refreshUserSessions = () => { setSessions(getUserSessions(user.id)); };
+
+  const handleProfileSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileError('');
+    setProfileSuccess('');
+    
+    if (profileName.trim().length < 2) {
+      setProfileError('Name must be at least 2 characters long.');
+      return;
+    }
+    
+    // South African Phone Validation (+27 or 0, followed by 6, 7, or 8, then 8 digits)
+    const saPhoneRegex = /^(?:\+27|0)[6-8][0-9]{8}$/;
+    const cleanPhone = profilePhone.replace(/\s/g, ''); // Strip spaces for validation
+
+    if (cleanPhone && !saPhoneRegex.test(cleanPhone)) {
+      setProfileError('Please enter a valid South African phone number (e.g., +27 82 123 4567).');
+      return;
+    }
+
+    localStorage.setItem(`profile_phone_${user.id}`, profilePhone);
+    setProfileSuccess('Profile details verified and saved!');
+    setTimeout(() => setProfileSuccess(''), 3000);
+  };
+
+  const handleDeleteAccount = () => {
+    if (window.confirm("WARNING: Are you sure you want to delete your account? All your tests, flashcards, and progress will be permanently erased.")) {
+      localStorage.removeItem(`custom_study_modules_${user.id}`);
+      localStorage.removeItem(`custom_flashcards_${user.id}`);
+      localStorage.removeItem(`cognitive_calibrated_${user.id}`);
+      localStorage.removeItem(`calibration_score_${user.id}`);
+      localStorage.removeItem(`profile_phone_${user.id}`);
+      localStorage.removeItem(`tour_seen_${user.id}`);
+      localStorage.removeItem(`app_theme`);
+      window.location.reload();
+    }
+  };
+
+  const downloadBackup = () => {
+    const data = {
+      sessions,
+      customModules,
+      customFlashcards,
+      profile: { name: user.name, phone: profilePhone }
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `${user.name.replace(/\s+/g, '_')}_Backup.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const calibrateFromSession = (session: LearningSession) => {
+    const total = session.responses.length;
+    if (total === 0) return;
+    const correct = session.responses.filter(r => r.isCorrect).length;
+    const scorePct = (correct / total) * 100;
+    
+    let newDiff: Difficulty = 'introductory';
+    if (scorePct >= 67) newDiff = 'advanced';
+    else if (scorePct >= 34) newDiff = 'intermediate';
+
+    setLastCalibration(newDiff);
+    setCalibrationScore(scorePct);
+    setHasCalibrated(true);
+    
+    localStorage.setItem(`cognitive_calibrated_${user.id}`, 'true');
+    localStorage.setItem(`calibration_score_${user.id}`, scorePct.toString());
+  };
+
+  const dismissCalibrationPrompt = () => {
+    setHasCalibrated(true);
+    localStorage.setItem(`cognitive_calibrated_${user.id}`, 'true');
+  };
+
+  const resetCalibration = () => {
+    setHasCalibrated(false);
+    setLastCalibration(null);
+    setCalibrationScore(null);
+    localStorage.removeItem(`cognitive_calibrated_${user.id}`);
+    localStorage.removeItem(`calibration_score_${user.id}`);
+  };
 
   const completedSessions = sessions.filter(s => s.status === 'completed');
   const allResponses = completedSessions.flatMap(s => s.responses);
@@ -219,14 +463,28 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const avgCli = allResponses.length > 0 ? Math.round(allResponses.reduce((acc, r) => acc + r.cognitiveLoadScore, 0) / allResponses.length) : 0;
 
   const speedScore = Math.max(0, Math.min(100, ((40 - avgLatencySec) / 20) * 100));
-  const masteryPercentage = Math.min(100, Math.round((overallAccuracy * 0.5) + (speedScore * 0.25) + (avgCli * 0.25)));
+  
+  let calculatedMastery = Math.min(100, Math.round((overallAccuracy * 0.5) + (speedScore * 0.25) + ((100 - avgCli) * 0.25)));
+
+  if (calibrationScore !== null) {
+    if (completedSessions.length <= 2) {
+      calculatedMastery = Math.round(calibrationScore);
+    } else {
+      calculatedMastery = Math.round((calibrationScore * 0.4) + (calculatedMastery * 0.6));
+    }
+  }
+  
+  const masteryPercentage = calculatedMastery;
+
+  const derivedDifficulty: Difficulty = masteryPercentage >= 67 ? 'advanced' : masteryPercentage >= 34 ? 'intermediate' : 'introductory';
+  const currentDifficulty: Difficulty = isManualOverride ? manualDifficulty : derivedDifficulty;
 
   const streak = useMemo(() => {
     if (completedSessions.length === 0) return { current: 0, best: 0, activeToday: false };
     const dates = [...new Set(completedSessions.map(s => new Date(s.startedAt).toDateString()))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
     const today = new Date().toDateString();
     const yesterday = new Date(Date.now() - 86400000).toDateString();
-    
+
     let current = 0;
     if (dates.includes(today) || dates.includes(yesterday)) {
       current = 1;
@@ -238,18 +496,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     }
     return { current, best: Math.max(current, dates.length), activeToday: dates.includes(today) };
   }, [completedSessions]);
-
-  const vault = useMemo(() => {
-    const wrongQuestions: Record<string, { front: string; back: string; due: boolean }> = {};
-    allResponses.forEach((r, i) => {
-      if (!r.isCorrect) {
-        wrongQuestions[r.questionId] = { front: `Review Question ${i+1}`, back: r.explanation || 'Re-read your notes.', due: true };
-      }
-    });
-    return Object.values(wrongQuestions);
-  }, [allResponses]);
-
-  const dueItems = useMemo(() => vault.filter(v => v.due), [vault]);
 
   const level = useMemo(() => levelInfo(totalXp(sessions, [])), [sessions]);
   const fp = useMemo(() => fingerprint(sessions, []), [sessions]);
@@ -269,7 +515,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
         setTimeRemaining(prev => {
           if (prev === null || prev <= 1) {
             clearInterval(countdownRef.current!);
-            handleNextQuestion(); 
+            handleNextQuestion();
             return 0;
           }
           return prev - 1;
@@ -280,7 +526,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   }, [activeSession, sessionFinished, timeRemaining]);
 
   useEffect(() => {
-    if (activeSession && !submittedFeedback && !showIntervention && activeModule?.questions[currentQuestionIdx]) {
+    if (activeSession && !submittedFeedback && !showIntervention && activeModule?.questions?.[currentQuestionIdx]) {
       const baseline = activeModule.questions[currentQuestionIdx].baselineExpectedSeconds || 30;
       if (elapsedSeconds > baseline * 2) {
         setShowIntervention(true);
@@ -291,9 +537,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const cleanExtractedText = (raw: string) => {
     return raw.split('\n').filter(line => {
         const t = line.trim();
-        if (t.length < 20) return false; 
-        if (/^\d+$/.test(t)) return false; 
-        if (/\.{3,}\s*\d+$/.test(t)) return false; 
+        if (t.length < 20) return false;
+        if (/^\d+$/.test(t)) return false;
+        if (/\.{3,}\s*\d+$/.test(t)) return false;
         return true;
       }).join(' ').replace(/\s+/g, ' ').trim();
   };
@@ -310,7 +556,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
         const reader = new FileReader();
         reader.onload = (event) => { setStudyMaterialText(cleanExtractedText(event.target?.result as string)); setIsGenerating(false); };
         reader.readAsText(file);
-      } 
+      }
       else if (file.name.endsWith('.pdf')) {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -353,14 +599,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
       }
       else { setAiError("Please upload .txt, .pdf, .docx, or .pptx"); }
     } catch (error: any) {
-      setAiError(`Failed to read the file: ${error.message}`);
+      setAiError(`Failed to read the file. Please ensure it is not corrupted.`);
     } finally { setIsGenerating(false); }
   };
 
   const generateMaterial = async (text: string, tool: string, config = examConfig, isEasier = false) => {
     setIsGenerating(true);
     setAiError(null);
-    setShowExamSetup(false); 
+    setShowExamSetup(false);
     let parsedData = null;
 
     const safeConfig = {
@@ -372,36 +618,46 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     try {
       const sb = getSupabaseClient();
       if (!sb) throw new Error("Supabase is not configured.");
-      
+
       console.log("Starting AI generation...");
-      
+
       const invokePromise = sb.functions.invoke('generate-quiz', {
         body: { studyText: text.slice(0, 5000), outputFormat: 'quiz', activeTool: tool, difficulty: safeConfig.difficulty, config: safeConfig },
       });
 
-      // 4-SECOND HARD TIMEOUT
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("AI generation timed out.")), 4000); 
+        setTimeout(() => reject(new Error("AI generation timed out.")), 4000);
       });
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
-      if (error) throw new Error(`Supabase Error: ${error.message}`);
+      if (error) throw new Error(`Connection Error: Could not reach AI service.`);
       if (data?.error) throw new Error(`AI Error: ${data.error}`);
       parsedData = typeof data === 'string' ? JSON.parse(data.replace(/```json/g, '').replace(/```/g, '').trim()) : data;
       console.log("AI generation successful.");
 
     } catch (error: any) {
       console.warn("Supabase AI failed or timed out. Using local fallback.", error);
-      parsedData = generateLocalMaterial(text, tool, safeConfig);
+      try {
+        parsedData = generateLocalMaterial(text, tool, safeConfig);
+      } catch (localError: any) {
+        setAiError(localError.message || "Local generation failed.");
+        setIsGenerating(false);
+        return;
+      }
     }
 
     try {
       if (tool === 'Flashcard' && parsedData?.flashcards) {
         const newCards = parsedData.flashcards.map((fc: any) => ({ front: `[Flashcard] ${fc.front}`, back: fc.back }));
         const updated = [...customFlashcards, ...newCards];
-        setCustomFlashcards(updated); localStorage.setItem('custom_flashcards', JSON.stringify(updated));
-        setCurrentCardIdx(customFlashcards.length); setIsFlipped(false);
+        setCustomFlashcards(updated); localStorage.setItem(`custom_flashcards_${user.id}`, JSON.stringify(updated));
+        
+        const startIndex = customFlashcards.length;
+        setCurrentCardIdx(startIndex); 
+        setIsFlipped(false);
+        setShowFlashcardViewer(true);
+
       } else if (parsedData?.questions && parsedData.questions.length > 0) {
         const questions: Question[] = parsedData.questions.map((q: any, index: number) => ({
           id: `q-${Date.now()}-${index}`, text: q.text || "Missing", options: q.options || [], correctAnswerIndex: q.correctAnswerIndex ?? -1,
@@ -410,13 +666,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
         } as any));
 
         const newModule: LearningModule = {
-          id: `module-${Date.now()}`, code: isEasier ? 'RETEST-EASY' : tool.toUpperCase().replace(' ', '-'), 
+          id: `module-${Date.now()}`, code: isEasier ? 'RETEST-EASY' : tool.toUpperCase().replace(' ', '-'),
           title: materialTitle || `${tool}: Generated Material`, description: `Generated module.`, academicDiscipline: 'General',
-          estimatedMinutes: Math.ceil(questions.length * 1.5), questions: questions, sourceText: text
+          estimatedMinutes: Math.ceil(questions.length * 1.5), questions: questions, sourceText: text, createdAt: new Date().toISOString()
         } as any;
 
         const updated = [...customModules, newModule];
-        setCustomModules(updated); localStorage.setItem('custom_study_modules', JSON.stringify(updated));
+        setCustomModules(updated); localStorage.setItem(`custom_study_modules_${user.id}`, JSON.stringify(updated));
         if (tool === 'Practice Test' || isEasier) handleStartModule(newModule, safeConfig.timer);
       } else { throw new Error("AI did not return valid questions."); }
       setStudyMaterialText(''); setMaterialTitle(''); setStudyLabView('hub');
@@ -431,7 +687,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   };
 
   const handleStartModule = (mod: LearningModule, timerMins: number = 0) => {
-    if (!mod.questions || mod.questions.length === 0) { alert("No questions."); return; }
+    if (!mod.questions || mod.questions.length === 0) { alert("No questions available for this module."); return; }
     const newSessionId = `ses-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
     const newSession: LearningSession = {
       id: newSessionId, userId: user.id, userEmail: user.email, userName: user.name,
@@ -443,8 +699,48 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     setSelectedOption(null); setEssayInput(''); setHesitationCount(0); setAttemptsCount(1);
     setShowScaffoldHint(false); setSubmittedFeedback(null); setSessionFinished(false);
     setQuestionStartTime(Date.now()); setElapsedSeconds(0); setConfidence(null);
+    setLastCalibration(null);
     setTimeRemaining(timerMins > 0 ? timerMins * 60 : null);
     saveSession(newSession);
+  };
+
+  const handleResumeSession = (mod: LearningModule, session: LearningSession) => {
+    setActiveModule(mod);
+    setActiveSession(session);
+    setCurrentQuestionIdx(session.responses.length);
+    setSelectedOption(null);
+    setEssayInput('');
+    setHesitationCount(0);
+    setAttemptsCount(1);
+    setShowScaffoldHint(false);
+    setSubmittedFeedback(null);
+    setSessionFinished(false);
+    setQuestionStartTime(Date.now());
+    setElapsedSeconds(0);
+    setConfidence(null);
+    setLastCalibration(null);
+    setTimeRemaining(null);
+    setViewingPastSession(null);
+  };
+
+  const handleDeleteModule = (moduleId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this test? This action cannot be undone.")) {
+      const updatedModules = customModules.filter(m => m.id !== moduleId);
+      setCustomModules(updatedModules);
+      localStorage.setItem(`custom_study_modules_${user.id}`, JSON.stringify(updatedModules));
+      
+      const updatedSessions = sessions.filter(s => s.moduleId !== moduleId);
+      setSessions(updatedSessions);
+    }
+  };
+
+  const handleDeleteFlashcards = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete your entire flashcard deck? This action cannot be undone.")) {
+      setCustomFlashcards([]);
+      localStorage.removeItem(`custom_flashcards_${user.id}`);
+    }
   };
 
   const handleSelectOption = (idx: number) => {
@@ -458,8 +754,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     setSelectedOption(idx);
   };
 
-  const currentQuestion: Question & { type?: string } | undefined = activeModule?.questions[currentQuestionIdx] as any;
-  const handleStartReview = () => { if (dueItems.length) handleStartModule(buildReviewModule(dueItems as any)); };
+  const currentQuestion: Question & { type?: string } | undefined = activeModule?.questions?.[currentQuestionIdx] as any;
 
   const handleSubmitAnswer = () => {
     if (!currentQuestion || !activeSession) return;
@@ -467,7 +762,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
     const responseTimeMs = Date.now() - questionStartTime;
     const isCorrect = selectedOption === currentQuestion.correctAnswerIndex;
-    
+
     const cliScore = calculateCLI(responseTimeMs / 1000, currentQuestion.baselineExpectedSeconds || 30, hesitationCount, isCorrect);
 
     const newResponse: QuestionResponse = {
@@ -475,7 +770,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
       hesitationCount, attemptsCount, hintUsed: showScaffoldHint, cognitiveLoadScore: cliScore,
       adaptationAction: isCorrect ? 'Maintain difficulty' : 'Provide scaffold', ...(confidence ? { confidence } : {})
     };
-    
+
     const updatedSession = { ...activeSession, responses: [...activeSession.responses, newResponse], totalDwellTimeMs: activeSession.totalDwellTimeMs + responseTimeMs };
     setActiveSession(updatedSession); saveSession(updatedSession);
     setSubmittedFeedback({ isCorrect, explanation: currentQuestion.explanation, responseTimeMs, cliScore, adaptiveAction: isCorrect ? 'Maintain' : 'Scaffold' });
@@ -483,7 +778,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
   const handleNextQuestion = () => {
     if (!activeModule || !activeSession) return;
-    setShowIntervention(false); 
+    setShowIntervention(false);
     if (currentQuestionIdx + 1 < activeModule.questions.length && (!timeRemaining || timeRemaining > 0)) {
       setCurrentQuestionIdx(prev => prev + 1);
       setSelectedOption(null); setEssayInput(''); setHesitationCount(0); setAttemptsCount(1);
@@ -493,8 +788,37 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
       const finalMetrics = { averageResponseTimeMs: activeSession.responses.reduce((a,b)=>a+b.responseTimeMs,0)/activeSession.responses.length, cognitiveLoadIndex: activeSession.responses.reduce((a,b)=>a+b.cognitiveLoadScore,0)/activeSession.responses.length, predictedState: 'flow' as any };
       const finalizedSession: LearningSession = { ...activeSession, status: 'completed', completedAt: new Date().toISOString(), finalMetrics };
       saveSession(finalizedSession); setActiveSession(finalizedSession); setSessionFinished(true); refreshUserSessions();
+
+      if (isCurriculumModule(activeModule) && finalizedSession.responses.length > 0) {
+        calibrateFromSession(finalizedSession);
+      }
+
       if (countdownRef.current) clearInterval(countdownRef.current);
     }
+  };
+
+  const downloadReport = (module: LearningModule, session: LearningSession) => {
+    let csv = `Question,Selected Answer,Correct Answer,Is Correct,Response Time (s),Cognitive Load\n`;
+    
+    session.responses.forEach((res, i) => {
+      const q = module.questions[i];
+      if (!q) return;
+      
+      const selectedAns = q.options[res.selectedOptionIndex] || 'N/A';
+      const correctAns = q.options[q.correctAnswerIndex] || 'N/A';
+      
+      const cleanText = (str: string) => `"${str.replace(/"/g, '""')}"`;
+      
+      csv += `${cleanText(q.text)},${cleanText(selectedAns)},${cleanText(correctAns)},${res.isCorrect ? 'Yes' : 'No'},${(res.responseTimeMs / 1000).toFixed(1)},${res.cognitiveLoadScore}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `${module.title.replace(/\s+/g, '_')}_Report.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const fontClass = fontSize === 'large' ? 'text-[17px]' : fontSize === 'x-large' ? 'text-[19px]' : 'text-base';
@@ -509,17 +833,117 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
+  // --- VIEWING PAST SESSION (LIBRARY) ---
+  if (viewingPastSession) {
+    const { module, session } = viewingPastSession;
+    const scorePct = Math.round((session.responses.filter(r => r.isCorrect).length / session.responses.length) * 100);
+
+    return (
+      <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass}`}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <button onClick={() => setViewingPastSession(null)} className={`flex items-center gap-1 text-sm font-semibold mb-2 cursor-pointer ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
+            <ArrowLeft className="w-4 h-4" /> Back to Library
+          </button>
+
+          <div className={`rounded-2xl border p-8 shadow-sm space-y-6 ${bgCard}`}>
+            <div className={`flex items-center gap-3 border-b pb-6 ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'}`}><Brain className="w-6 h-6" /></div>
+              <div>
+                <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">Session Report</span>
+                <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>{module.title}</h2>
+                <p className={`text-xs ${textMuted}`}>{new Date(session.completedAt || Date.now()).toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Score</span><span className={`text-3xl font-extrabold mt-1 block ${scorePct >= 50 ? 'text-emerald-500' : 'text-rose-500'}`}>{scorePct}%</span></div>
+              <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Results</span><span className={`text-3xl font-extrabold mt-1 block ${textTitle}`}>{session.responses.filter(r => r.isCorrect).length}/{session.responses.length}</span></div>
+              <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Mean Latency</span><span className={`text-3xl font-extrabold mt-1 block ${textTitle}`}>{((session.finalMetrics?.averageResponseTimeMs || 0) / 1000).toFixed(1)}s</span></div>
+              <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Cog. Load</span><span className="text-3xl font-extrabold text-blue-500 mt-1 block">{(session.finalMetrics?.cognitiveLoadIndex || 0).toFixed(2)}</span></div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <button onClick={() => downloadReport(module, session)} className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-2 cursor-pointer">
+                <FileDown className="w-4 h-4" /> Download CSV Report
+              </button>
+              <button type="button" onClick={() => {
+                const sourceText = (module as any).sourceText;
+                if (!sourceText) {
+                  alert("Source text is missing for this module. Cannot generate a new test.");
+                  return;
+                }
+                setViewingPastSession(null);
+                setTimeout(() => {
+                  generateMaterial(sourceText, 'Practice Test', examConfig, false);
+                }, 100);
+              }} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-2 cursor-pointer">
+                <RefreshCw className="w-4 h-4" /> Generate New Test
+              </button>
+            </div>
+
+            <div className="mt-8 space-y-6">
+              <h3 className={`text-lg font-bold border-b pb-2 ${textTitle} ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>Review Answers</h3>
+              {session.responses.map((res, i) => {
+                const q = module.questions[i];
+                if (!q) return null;
+                return (
+                  <div key={i} className={`p-5 rounded-xl border ${isDark ? 'bg-[#1a1a20] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className="flex gap-3">
+                      <span className={`font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{i + 1}.</span>
+                      <div className="space-y-3 flex-1">
+                        <p className={`font-semibold ${textTitle}`}>{q.text}</p>
+                        <div className="space-y-2">
+                          {q.options?.map((opt, optIdx) => {
+                            const isCorrect = optIdx === q.correctAnswerIndex;
+                            const isUserChoice = optIdx === res.selectedOptionIndex;
+                            let bgClass = 'bg-transparent';
+                            let textClass = textMuted;
+                            if (isCorrect) { bgClass = 'bg-emerald-500/10'; textClass = 'text-emerald-500 font-bold'; }
+                            else if (isUserChoice && !isCorrect) { bgClass = 'bg-rose-500/10'; textClass = 'text-rose-500 line-through'; }
+
+                            return (
+                              <div key={optIdx} className={`flex items-start gap-2 p-2 rounded-lg ${bgClass}`}>
+                                {isCorrect ? <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-500" /> : isUserChoice ? <XCircle className="w-4 h-4 mt-0.5 text-rose-500" /> : <div className="w-4 h-4" />}
+                                <span className={`text-sm ${textClass}`}>{opt}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <p className={`text-xs p-3 rounded-lg border ${isDark ? 'bg-[#121212] border-[#2e2e38] text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}>
+                          <strong className="text-blue-500">Explanation:</strong> {q.explanation}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // --- LOADING SCREEN OVERLAY ---
   if (isGenerating && !activeSession) {
+    const isFlashcardGen = activeTool === 'Flashcard';
     return (
       <div className={`min-h-screen ${bgMain} flex flex-col items-center justify-center space-y-6`}>
         <div className="relative">
           <div className="w-24 h-24 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin"></div>
-          <Brain className="w-10 h-10 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          {isFlashcardGen ? (
+            <Layers className="w-10 h-10 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          ) : (
+            <Brain className="w-10 h-10 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          )}
         </div>
         <div className="text-center space-y-2">
-          <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>Generating your test...</h2>
-          <p className={`text-sm ${textMuted}`}>Analyzing text and crafting questions based on your mastery level.</p>
+          <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>
+            {isFlashcardGen ? "Crafting your flashcards..." : "Generating your test..."}
+          </h2>
+          <p className={`text-sm ${textMuted}`}>
+            {isFlashcardGen ? "Extracting key concepts and building your study deck." : "Analyzing text and crafting questions based on your mastery level."}
+          </p>
         </div>
       </div>
     );
@@ -549,6 +973,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded bg-blue-900/50 text-blue-300 text-[11px] font-bold font-mono border border-blue-800">{activeModule.code}</span>
                 <span className={`text-xs font-semibold ${textMuted}`}>{activeModule.academicDiscipline} • <span className="uppercase text-blue-500 font-bold">{activeSession.activeDifficulty}</span></span>
+                {isCurriculumModule(activeModule) && (
+                  <span className="px-2 py-0.5 rounded bg-indigo-900/40 text-indigo-300 text-[10px] font-bold border border-indigo-800">CALIBRATION</span>
+                )}
               </div>
               <h2 className={`text-lg font-extrabold tracking-tight ${textTitle}`}>{activeModule.title}</h2>
             </div>
@@ -653,11 +1080,21 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
               </div>
             </div>
 
+            {lastCalibration && (
+              <div className={`p-4 rounded-xl border flex items-start gap-3 ${isDark ? 'bg-indigo-900/20 border-indigo-700' : 'bg-indigo-50 border-indigo-200'}`}>
+                <Target className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className={`text-sm font-bold ${isDark ? 'text-indigo-200' : 'text-indigo-900'}`}>Difficulty recalibrated</p>
+                  <p className={`text-xs ${isDark ? 'text-indigo-300' : 'text-indigo-700'}`}>Your assessed level is now <strong className="uppercase">{lastCalibration}</strong>. Future curriculum tests will reflect this level automatically.</p>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Score</span><span className={`text-3xl font-extrabold mt-1 block ${scorePct >= 50 ? 'text-emerald-500' : 'text-rose-500'}`}>{scorePct}%</span></div>
               <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Results</span><span className={`text-3xl font-extrabold mt-1 block ${textTitle}`}>{activeSession.responses.filter(r => r.isCorrect).length}/{activeSession.responses.length}</span></div>
               <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Mean Latency</span><span className={`text-3xl font-extrabold mt-1 block ${textTitle}`}>{((activeSession.finalMetrics?.averageResponseTimeMs || 0) / 1000).toFixed(1)}s</span></div>
-              <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Cog. Load</span><span className="text-3xl font-extrabold text-blue-500 mt-1 block">{activeSession.finalMetrics?.cognitiveLoadIndex || 0}</span></div>
+              <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}><span className={`text-[11px] uppercase font-bold block ${textMuted}`}>Cog. Load</span><span className="text-3xl font-extrabold text-blue-500 mt-1 block">{(activeSession.finalMetrics?.cognitiveLoadIndex || 0).toFixed(2)}</span></div>
             </div>
 
             <div className="mt-8 space-y-6">
@@ -679,7 +1116,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                             let textClass = textMuted;
                             if (isCorrect) { bgClass = 'bg-emerald-500/10'; textClass = 'text-emerald-500 font-bold'; }
                             else if (isUserChoice && !isCorrect) { bgClass = 'bg-rose-500/10'; textClass = 'text-rose-500 line-through'; }
-                            
+
                             return (
                               <div key={optIdx} className={`flex items-start gap-2 p-2 rounded-lg ${bgClass}`}>
                                 {isCorrect ? <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-500" /> : isUserChoice ? <XCircle className="w-4 h-4 mt-0.5 text-rose-500" /> : <div className="w-4 h-4" />}
@@ -700,7 +1137,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
             <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
               <button onClick={() => { setActiveSession(null); setActiveModule(null); setSessionFinished(false); refreshUserSessions(); }} className={`w-full sm:w-auto px-6 py-2.5 font-bold text-sm rounded-xl shadow-xs cursor-pointer ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-900'}`}>Return to Dashboard</button>
-              
+
               <div className="flex gap-3 w-full sm:w-auto">
                 {needsRetake && (
                   <button onClick={() => {
@@ -715,7 +1152,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                     <Sparkles className="w-4 h-4" /> Easier Test
                   </button>
                 )}
-                
+
                 <button onClick={() => {
                   const sourceText = (activeModule as any).sourceText;
                   if (sourceText) {
@@ -738,13 +1175,41 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   // ---- MAIN TABBED DASHBOARD VIEW ----
   return (
     <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass}`}>
-      
+
+      {showTour && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className={`max-w-lg w-full rounded-3xl p-8 shadow-2xl ${bgCard} animate-in zoom-in-95 duration-200`}>
+            <h2 className={`text-2xl font-extrabold mb-2 flex items-center gap-2 ${textTitle}`}><Sparkles className="text-amber-500 w-6 h-6" /> Welcome to CognitiveAdapt</h2>
+            <p className={`text-sm mb-6 ${textMuted}`}>Here is a quick tour of how to use the system.</p>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-500 flex items-center justify-center shrink-0"><Target className="w-4 h-4" /></div>
+                <div><h4 className={`text-sm font-bold ${textTitle}`}>1. Take a Curriculum Test</h4><p className={`text-xs ${textMuted}`}>Start with any subject to calibrate your baseline difficulty.</p></div>
+              </div>
+              <div className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-500 flex items-center justify-center shrink-0"><Brain className="w-4 h-4" /></div>
+                <div><h4 className={`text-sm font-bold ${textTitle}`}>2. Mastery Track</h4><p className={`text-xs ${textMuted}`}>The dog walks as you master speed, accuracy, and cognitive load. Your difficulty scales automatically.</p></div>
+              </div>
+              <div className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0"><FileText className="w-4 h-4" /></div>
+                <div><h4 className={`text-sm font-bold ${textTitle}`}>3. Generate Custom Tools</h4><p className={`text-xs ${textMuted}`}>Upload any PDF or pasted notes to generate custom flashcards or practice tests.</p></div>
+              </div>
+            </div>
+
+            <button onClick={() => { setShowTour(false); localStorage.setItem(`tour_seen_${user.id}`, 'true'); }} className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center">
+              Got it, let's start!
+            </button>
+          </div>
+        </div>
+      )}
+
       {showExamSetup && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className={`max-w-md w-full rounded-3xl p-8 shadow-2xl ${bgCard} animate-in zoom-in-95 duration-200`}>
             <h2 className={`text-2xl font-extrabold mb-2 ${textTitle}`}>Your test has been generated</h2>
             <p className={`text-sm mb-6 ${textMuted}`}>Customize "{materialTitle || 'Practice Test'}"</p>
-            
+
             <div className="space-y-4">
               <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
                 <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Number of Questions</label>
@@ -768,8 +1233,52 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
         </div>
       )}
 
+      {showFlashcardViewer && customFlashcards.length > 0 && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-2xl flex justify-between items-center mb-6">
+            <h2 className="text-white text-xl font-bold flex items-center gap-2"><Layers className="text-blue-500" /> Flashcard Review</h2>
+            <button onClick={() => setShowFlashcardViewer(false)} className="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all cursor-pointer"><X className="w-5 h-5" /></button>
+          </div>
+
+          <div className="w-full max-w-2xl space-y-8">
+            <div
+              onClick={() => setIsFlipped(!isFlipped)}
+              className={`w-full min-h-[300px] cursor-pointer rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all duration-300 shadow-2xl ${isFlipped ? 'bg-indigo-600 text-white' : 'bg-[#1e1e24] border border-[#2e2e38] text-white hover:bg-[#25252d]'}`}
+            >
+              <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-4">
+                {isFlipped ? 'Answer' : 'Question'}
+              </span>
+              <p className="text-xl sm:text-2xl font-bold leading-relaxed">
+                {isFlipped ? customFlashcards[currentCardIdx]?.back : customFlashcards[currentCardIdx]?.front}
+              </p>
+              <p className="text-xs opacity-50 mt-8 flex items-center gap-1"><RefreshCw className="w-3 h-3" /> Click to flip</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => { setCurrentCardIdx(prev => Math.max(0, prev - 1)); setIsFlipped(false); }}
+                disabled={currentCardIdx === 0}
+                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" /> Previous
+              </button>
+              <span className="text-slate-400 font-mono font-bold">
+                {currentCardIdx + 1} / {customFlashcards.length}
+              </span>
+              <button
+                onClick={() => { setCurrentCardIdx(prev => Math.min(customFlashcards.length - 1, prev + 1)); setIsFlipped(false); }}
+                disabled={currentCardIdx === customFlashcards.length - 1}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+              >
+                Next <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        
+
         <div className={`flex flex-wrap gap-2 border-b pb-2 ${navBorder}`}>
           <button onClick={() => { setActiveTab('dashboard'); setStudyLabView('hub'); }} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'dashboard' ? activeNavBg : inactiveNav}`}><BookOpen className="w-4 h-4" /><span>Dashboard</span></button>
           <button onClick={() => setActiveTab('curriculum')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'curriculum' ? activeNavBg : inactiveNav}`}><GraduationCap className="w-4 h-4" /><span>Curriculum</span></button>
@@ -781,7 +1290,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
           <div className="space-y-8 animate-in fade-in duration-300">
             {studyLabView === 'hub' && (
               <>
-                <ProfileHero name={user.name} level={level} streak={streak} unlocked={badges.filter(b => b.unlocked).length} totalBadges={badges.length} dueCount={dueItems.length} onReview={handleStartReview} />
+                <ProfileHero name={user.name} level={level} streak={streak} unlocked={badges.filter(b => b.unlocked).length} totalBadges={badges.length} />
                 <div className={`rounded-2xl border p-6 shadow-sm ${bgCard}`}>
                   <div className="flex justify-between items-center mb-6">
                     <div>
@@ -802,13 +1311,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                     </div>
                     <div className="flex justify-between mt-4 text-[10px] font-bold uppercase tracking-wider relative">
                       <span className={masteryPercentage >= 0 ? 'text-blue-500' : textMuted}>Introductory</span>
-                      <span className={masteryPercentage >= 33 ? 'text-blue-500' : textMuted}>Intermediate</span>
-                      <span className={masteryPercentage >= 66 ? 'text-blue-500' : textMuted}>Advanced</span>
+                      <span className={masteryPercentage >= 34 ? 'text-blue-500' : textMuted}>Intermediate</span>
+                      <span className={masteryPercentage >= 67 ? 'text-blue-500' : textMuted}>Advanced</span>
                       <span className={masteryPercentage >= 100 ? 'text-emerald-500' : textMuted}>Mastered</span>
                     </div>
                   </div>
+                  {hasCalibrated && (
+                    <div className={`mt-4 pt-4 border-t flex items-center gap-2 text-xs ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                      <span className={textMuted}>Current calibrated level:</span>
+                      <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-bold uppercase tracking-wider">{currentDifficulty}</span>
+                    </div>
+                  )}
                 </div>
-                
+
                 <section className={`rounded-3xl p-6 sm:p-8 ${isDark ? 'bg-[#1a1a20]' : 'bg-slate-100'}`}>
                   <h2 className={`text-xl font-bold mb-4 ${textTitle}`}>Quick Tools</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -868,11 +1383,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
               <>
                 <div>
                   <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>Curriculum Library</h2>
-                  <p className={`text-sm mt-1 ${textMuted}`}>Choose a subject to explore available modules and practical assessments.</p>
+                  <p className={`text-sm mt-1 ${textMuted}`}>Choose a subject to explore available modules. Completing any curriculum test <strong className="text-indigo-500">automatically calibrates your difficulty</strong> — this is optional, and you can always override it in Settings.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {Object.keys(curriculumBase).map(subject => (
-                    <button key={subject} onClick={() => setSelectedSubject(subject)} className={`rounded-2xl border p-6 shadow-sm hover:border-blue-500/50 transition-all text-left flex flex-col h-48 justify-between group ${bgCard}`}>
+                    <button key={subject} onClick={() => setSelectedSubject(subject)} className={`rounded-2xl border p-6 shadow-sm hover:border-blue-500/50 transition-all text-left flex flex-col h-48 justify-between group relative ${bgCard}`}>
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'}`}>
                         {SUBJECT_ICONS[subject] || <Book className="w-6 h-6" />}
                       </div>
@@ -894,7 +1409,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                 </button>
                 <div>
                   <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>{selectedSubject}</h2>
-                  <p className={`text-sm mt-1 ${textMuted}`}>Select a subtopic to begin your cognitive assessment. Questions will be tailored to your <strong className="uppercase text-blue-500">{currentDifficulty}</strong> level.</p>
+                  <p className={`text-sm mt-1 ${textMuted}`}>Select a subtopic to begin. Questions will be tailored to your <strong className="uppercase text-blue-500">{currentDifficulty}</strong> level.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Object.entries(curriculumBase[selectedSubject]).map(([subtopic, mods]) => (
@@ -903,6 +1418,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className={`px-2.5 py-1 rounded-md text-xs font-bold font-mono ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-700'}`}>{mod.code}</span>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${textMuted}`}>{mod.questions.length} Qs</span>
                           </div>
                           <h4 className={`text-base font-bold ${textTitle}`}>{mod.title}</h4>
                           <p className={`text-xs leading-relaxed line-clamp-2 ${textMuted}`}>{mod.description}</p>
@@ -923,56 +1439,174 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
         {activeTab === 'library' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>Your Library</h2>
-                <p className={`text-sm mt-1 ${textMuted}`}>All your generated study sets, flashcards, and practice tests.</p>
-              </div>
+            <div>
+              <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>Your Library</h2>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {customFlashcards.length > 0 && (
-                <div className={`rounded-2xl p-6 shadow-sm border ${bgCard}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><FileText className="w-5 h-5" /></div>
-                    <button onClick={handleDeleteFlashcards} className="text-slate-400 hover:text-rose-500"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                  <h4 className={`font-bold text-lg mb-1 ${textTitle}`}>Flashcard Deck</h4>
-                  <p className={`text-xs ${textMuted}`}>{customFlashcards.length} cards total</p>
-                  <button onClick={() => { setActiveTab('dashboard'); setIsFlipped(false); setCurrentCardIdx(0); setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 100); }} className="mt-6 w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold text-xs rounded-lg transition-colors">Study Deck</button>
-                </div>
-              )}
-              
-              {customModules.map(mod => (
-                <div key={mod.id} className={`rounded-2xl p-6 shadow-sm border ${bgCard}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-purple-100 text-purple-700`}>
-                      <ListChecks className="w-5 h-5" />
-                    </div>
-                    <button onClick={() => handleDeleteCustomQuiz(mod.id)} className="text-slate-400 hover:text-rose-500"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                  <h4 className={`font-bold text-lg mb-1 line-clamp-1 ${textTitle}`}>{mod.title}</h4>
-                  <p className={`text-xs ${textMuted}`}>{mod.questions.length} questions</p>
-                  <div className="flex gap-2 mt-6">
-                    <button onClick={() => handleStartModule(mod)} className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors">Start Test</button>
-                  </div>
-                </div>
-              ))}
 
-              {customModules.length === 0 && customFlashcards.length === 0 && (
-                <div className={`col-span-full p-12 text-center rounded-2xl border border-dashed ${isDark ? 'bg-[#1a1a20] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
-                  <BookOpenCheck className={`w-12 h-12 mx-auto mb-3 ${textMuted}`} />
-                  <p className={`font-bold ${textTitle}`}>Your library is empty</p>
-                  <p className={`text-xs mt-1 ${textMuted}`}>Generate study material from the Dashboard to see it here.</p>
-                </div>
-              )}
+            <div className="flex flex-wrap gap-2">
+              {['All', 'Flashcard sets', 'Practice tests'].map(filter => (
+                <button
+                  key={filter}
+                  onClick={() => setLibraryFilter(filter as any)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${libraryFilter === filter ? 'bg-slate-200 border-slate-300 text-slate-900' : 'bg-transparent border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800'}`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-6">
+              {(() => {
+                const allItems = [
+                  ...(libraryFilter === 'All' || libraryFilter === 'Practice tests' ? customModules.map(m => ({ type: 'test', item: m, date: new Date((m as any).createdAt || Date.now()) })) : []),
+                  ...(libraryFilter === 'All' || libraryFilter === 'Flashcard sets' ? (customFlashcards.length > 0 ? [{ type: 'flashcard', item: { title: 'Flashcard Deck' }, date: new Date() }] : []) : [])
+                ].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+                if (allItems.length === 0) {
+                   return (
+                    <div className={`p-12 text-center rounded-2xl border border-dashed ${isDark ? 'bg-[#1a1a20] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
+                      <BookOpenCheck className={`w-12 h-12 mx-auto mb-3 ${textMuted}`} />
+                      <p className={`font-bold ${textTitle}`}>Your library is empty</p>
+                      <p className={`text-xs mt-1 ${textMuted}`}>Generate study material from the Dashboard to see it here.</p>
+                    </div>
+                  );
+                }
+
+                const groups: Record<string, typeof allItems> = {};
+                const now = Date.now();
+                allItems.forEach(item => {
+                  const diffHours = (now - item.date.getTime()) / (1000 * 60 * 60);
+                  let label = "Older";
+                  if (diffHours < 1) label = "Just now";
+                  else if (diffHours < 24) label = "An hour ago";
+                  else if (diffHours < 24 * 7) label = "This week";
+
+                  if (!groups[label]) groups[label] = [];
+                  groups[label].push(item);
+                });
+
+                return Object.entries(groups).map(([label, items]) => (
+                  <div key={label} className="space-y-3">
+                    <h3 className={`text-sm font-bold ${textMuted}`}>{label}</h3>
+                    {items.map((item, idx) => {
+                      if (item.type === 'test') {
+                        const mod = item.item as LearningModule;
+                        const inProgressSession = sessions.find(s => s.moduleId === mod.id && s.status === 'in_progress');
+                        const pastSession = completedSessions.find(s => s.moduleId === mod.id);
+                        
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => {
+                              if (inProgressSession) {
+                                handleResumeSession(mod, inProgressSession);
+                              } else if (pastSession) {
+                                setViewingPastSession({ module: mod, session: pastSession });
+                              } else {
+                                handleStartModule(mod);
+                              }
+                            }}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-1 ${bgCard} ${inProgressSession ? 'border-amber-500/50 hover:border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'hover:border-blue-500/50'}`}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <ListChecks className={`w-4 h-4 ${inProgressSession ? 'text-amber-500' : 'text-blue-500'}`} />
+                                <h4 className={`font-bold ${textTitle}`}>{mod.title}</h4>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {inProgressSession && (
+                                  <span className="flex items-center gap-1 text-[10px] font-bold bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded-full animate-pulse">
+                                    <Play className="w-3 h-3" /> Resume
+                                  </span>
+                                )}
+                                <button
+                                  onClick={(e) => handleDeleteModule(mod.id, e)}
+                                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                                  title="Delete test"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                            <p className={`text-xs ${textMuted}`}>
+                              Created from uploaded file {(mod as any).sourceText ? 'Notes' : 'Text'}
+                            </p>
+                            {pastSession && !inProgressSession && (
+                              <div className="flex gap-2 mt-2">
+                                <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                                  Score: {Math.round((pastSession.responses.filter(r => r.isCorrect).length / pastSession.responses.length) * 100)}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => { setActiveTab('dashboard'); setIsFlipped(false); setCurrentCardIdx(0); setShowFlashcardViewer(true); }}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-1 ${bgCard} hover:border-blue-500/50`}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-amber-500" />
+                                <h4 className={`font-bold ${textTitle}`}>Flashcard Deck</h4>
+                              </div>
+                              <button
+                                onClick={(e) => handleDeleteFlashcards(e)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                                title="Delete all flashcards"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <p className={`text-xs ${textMuted}`}>
+                              {customFlashcards.length} cards total
+                            </p>
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         )}
 
         {activeTab === 'settings' && (
           <div className={`rounded-2xl border p-6 shadow-sm space-y-8 animate-in fade-in duration-300 max-w-3xl ${bgCard}`}>
+            
+            {/* Profile / Verification Section */}
             <div>
+              <h3 className={`text-lg font-bold flex items-center gap-2 ${textTitle}`}><UserIcon className="w-5 h-5 text-blue-500" /> Verify Profile Details</h3>
+              <form onSubmit={handleProfileSave} className="mt-4 space-y-4">
+                {profileError && <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-bold rounded-xl">{profileError}</div>}
+                {profileSuccess && <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-bold rounded-xl">{profileSuccess}</div>}
+                
+                <div className={`flex flex-col sm:flex-row gap-4`}>
+                  <div className="flex-1">
+                    <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Full Name (Min 2 chars)</label>
+                    <div className="relative">
+                      <UserIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input type="text" value={profileName} onChange={e => setProfileName(e.target.value)} className={`w-full pl-9 pr-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none ${isDark ? 'bg-[#121212] border-slate-600 text-white' : 'bg-white border-slate-300'}`} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Phone Number (South Africa)</label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input type="tel" value={profilePhone} onChange={e => setProfilePhone(e.target.value)} placeholder="+27 82 123 4567" className={`w-full pl-9 pr-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none ${isDark ? 'bg-[#121212] border-slate-600 text-white' : 'bg-white border-slate-300'}`} />
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl cursor-pointer">
+                  Save & Verify
+                </button>
+              </form>
+            </div>
+
+            <div className={`pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
               <h3 className={`text-lg font-bold flex items-center gap-2 ${textTitle}`}>{isDark ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />} Appearance</h3>
               <div className={`mt-4 flex items-center justify-between p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
                 <div><span className={`text-sm font-bold block ${textTitle}`}>Interface Theme</span><span className={`text-xs ${textMuted}`}>Switch between dark and light mode.</span></div>
@@ -991,7 +1625,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                   <span className={`ml-3 text-sm font-bold ${textTitle}`}>Override Auto-Adaptation</span>
                 </label>
               </div>
-              
+
               {isManualOverride && (
                 <div className="mt-4 flex gap-3 animate-in fade-in">
                   {(['introductory', 'intermediate', 'advanced'] as const).map(level => (
@@ -999,7 +1633,28 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                   ))}
                 </div>
               )}
-              <p className={`text-xs mt-3 ${textMuted}`}>When off, difficulty scales automatically based on your performance.</p>
+              <p className={`text-xs mt-3 ${textMuted}`}>When off, difficulty scales dynamically based on your Mastery Track.</p>
+            </div>
+
+            <div className={`pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+              <h3 className={`text-lg font-bold flex items-center gap-2 ${textTitle}`}><Target className="w-5 h-5 text-indigo-500" /> Dynamic Skill Tracking</h3>
+              <div className={`mt-4 p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-bold ${textTitle}`}>Current Test Difficulty</p>
+                    <p className={`text-xs mt-0.5 ${textMuted}`}>{hasCalibrated ? 'Based on your evolving Mastery Track score.' : 'Take a curriculum test to calibrate your starting point.'}</p>
+                  </div>
+                  <span className="px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider">{currentDifficulty}</span>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-3">
+                <button onClick={() => { setActiveTab('curriculum'); setSelectedSubject(null); }} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5" /> Take Assessment
+                </button>
+                <button onClick={resetCalibration} className={`px-4 py-2 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 border ${isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-600 hover:bg-slate-100'}`}>
+                  <Trash2 className="w-3.5 h-3.5" /> Reset Calibration
+                </button>
+              </div>
             </div>
 
             <div className={`pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
@@ -1017,6 +1672,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                 </div>
               </div>
             </div>
+
+            <div className={`pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+              <h3 className={`text-lg font-bold flex items-center gap-2 text-rose-500`}><ShieldAlert className="w-5 h-5" /> Data & Account</h3>
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                <button onClick={downloadBackup} className={`px-4 py-2 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 border ${isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-600 hover:bg-slate-100'}`}>
+                  <Download className="w-3.5 h-3.5" /> Download Data Backup
+                </button>
+                <button onClick={handleDeleteAccount} className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5">
+                  <Trash2 className="w-3.5 h-3.5" /> Delete Account
+                </button>
+              </div>
+            </div>
+
           </div>
         )}
 
