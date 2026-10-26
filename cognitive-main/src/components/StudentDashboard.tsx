@@ -14,7 +14,8 @@ import {
   Sparkles, ChevronRight, Settings, Bookmark, Info, Sliders, ShieldCheck,
   Trash2, Upload, FileText, AlertTriangle, Target, Book, Zap,
   ArrowLeft, Plus, Moon, Sun, Layers, Lightbulb, Gauge, ShieldAlert, GraduationCap, Calculator, Cpu, X,
-  ListChecks, FlaskConical, Compass, Keyboard, Wind, ShieldQuestion, Timer, CheckSquare, Square, BookOpenCheck
+  ListChecks, FlaskConical, Compass, Keyboard, Wind, ShieldQuestion, Timer, CheckSquare, Square, BookOpenCheck,
+  RefreshCw
 } from 'lucide-react';
 
 import mammoth from 'mammoth';
@@ -66,7 +67,6 @@ const curriculumBase = {
   }
 } as Record<string, Record<string, LearningModule[]>>;
 
-// BULLETPROOF FALLBACK GENERATOR
 const generateLocalMaterial = (text: string, tool: string, config: any = {}) => {
   const cleanText = text.replace(/(\s+\d+\.?\s*$)/gm, '').replace(/^(TOPIC|CHAPTER|SECTION|UNIT|PART)\s*\d+.*$/gim, ''); 
   let rawSentences = cleanText.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
@@ -119,7 +119,6 @@ const generateLocalMaterial = (text: string, tool: string, config: any = {}) => 
   return { questions };
 };
 
-// BULLETPROOF CLI CALCULATOR
 const calculateCLI = (timeTaken: number, baseline: number, hesitations: number, isCorrect: boolean) => {
   let score = 10;
   if (!isCorrect) score += 40; 
@@ -189,6 +188,18 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
+  // FAIL-SAFE: If isGenerating is true for more than 12 seconds, reset.
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isGenerating) {
+      timer = setTimeout(() => {
+        setIsGenerating(false);
+        setAiError("The AI request took too long. The system has reset. Please try again.");
+      }, 12000); 
+    }
+    return () => clearTimeout(timer);
+  }, [isGenerating]);
+
   useEffect(() => {
     refreshUserSessions();
     const saved = localStorage.getItem('custom_study_modules');
@@ -210,7 +221,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const speedScore = Math.max(0, Math.min(100, ((40 - avgLatencySec) / 20) * 100));
   const masteryPercentage = Math.min(100, Math.round((overallAccuracy * 0.5) + (speedScore * 0.25) + (avgCli * 0.25)));
 
-  // BULLETPROOF STREAK CALCULATOR
   const streak = useMemo(() => {
     if (completedSessions.length === 0) return { current: 0, best: 0, activeToday: false };
     const dates = [...new Set(completedSessions.map(s => new Date(s.startedAt).toDateString()))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
@@ -229,7 +239,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     return { current, best: Math.max(current, dates.length), activeToday: dates.includes(today) };
   }, [completedSessions]);
 
-  // BULLETPROOF MEMORY VAULT CALCULATOR
   const vault = useMemo(() => {
     const wrongQuestions: Record<string, { front: string; back: string; due: boolean }> = {};
     allResponses.forEach((r, i) => {
@@ -351,6 +360,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const generateMaterial = async (text: string, tool: string, config = examConfig, isEasier = false) => {
     setIsGenerating(true);
     setAiError(null);
+    setShowExamSetup(false); 
     let parsedData = null;
 
     const safeConfig = {
@@ -362,16 +372,27 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     try {
       const sb = getSupabaseClient();
       if (!sb) throw new Error("Supabase is not configured.");
-      const { data, error } = await sb.functions.invoke('generate-quiz', {
+      
+      console.log("Starting AI generation...");
+      
+      const invokePromise = sb.functions.invoke('generate-quiz', {
         body: { studyText: text.slice(0, 5000), outputFormat: 'quiz', activeTool: tool, difficulty: safeConfig.difficulty, config: safeConfig },
       });
+
+      // 4-SECOND HARD TIMEOUT
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("AI generation timed out.")), 4000); 
+      });
+
+      const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
       if (error) throw new Error(`Supabase Error: ${error.message}`);
       if (data?.error) throw new Error(`AI Error: ${data.error}`);
       parsedData = typeof data === 'string' ? JSON.parse(data.replace(/```json/g, '').replace(/```/g, '').trim()) : data;
+      console.log("AI generation successful.");
 
     } catch (error: any) {
-      console.warn("Supabase AI failed. Using local fallback.", error);
+      console.warn("Supabase AI failed or timed out. Using local fallback.", error);
       parsedData = generateLocalMaterial(text, tool, safeConfig);
     }
 
@@ -398,7 +419,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
         setCustomModules(updated); localStorage.setItem('custom_study_modules', JSON.stringify(updated));
         if (tool === 'Practice Test' || isEasier) handleStartModule(newModule, safeConfig.timer);
       } else { throw new Error("AI did not return valid questions."); }
-      setStudyMaterialText(''); setMaterialTitle(''); setStudyLabView('hub'); setShowExamSetup(false);
+      setStudyMaterialText(''); setMaterialTitle(''); setStudyLabView('hub');
     } catch (err: any) { setAiError(err.message || "Generation failed."); } finally { setIsGenerating(false); }
   };
 
@@ -487,6 +508,22 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const inactiveNav = isDark ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100';
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
+
+  // --- LOADING SCREEN OVERLAY ---
+  if (isGenerating && !activeSession) {
+    return (
+      <div className={`min-h-screen ${bgMain} flex flex-col items-center justify-center space-y-6`}>
+        <div className="relative">
+          <div className="w-24 h-24 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin"></div>
+          <Brain className="w-10 h-10 text-blue-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        </div>
+        <div className="text-center space-y-2">
+          <h2 className={`text-2xl font-extrabold tracking-tight ${textTitle}`}>Generating your test...</h2>
+          <p className={`text-sm ${textMuted}`}>Analyzing text and crafting questions based on your mastery level.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (activeSession && activeModule && !sessionFinished) {
     const isMCQ = currentQuestion?.type === 'mcq' || !currentQuestion?.type;
@@ -661,22 +698,36 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
               })}
             </div>
 
-            <div className={`flex items-center justify-between pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
-              <button onClick={() => { setActiveSession(null); setActiveModule(null); setSessionFinished(false); refreshUserSessions(); }} className={`px-6 py-2.5 font-bold text-sm rounded-xl shadow-xs cursor-pointer ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-900'}`}>Return to Dashboard</button>
+            <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+              <button onClick={() => { setActiveSession(null); setActiveModule(null); setSessionFinished(false); refreshUserSessions(); }} className={`w-full sm:w-auto px-6 py-2.5 font-bold text-sm rounded-xl shadow-xs cursor-pointer ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-900'}`}>Return to Dashboard</button>
               
-              {needsRetake && (
+              <div className="flex gap-3 w-full sm:w-auto">
+                {needsRetake && (
+                  <button onClick={() => {
+                    const sourceText = (activeModule as any).sourceText;
+                    if (sourceText) {
+                      setActiveSession(null); setActiveModule(null); setSessionFinished(false);
+                      generateMaterial(sourceText, 'Practice Test', examConfig, true);
+                    } else {
+                      alert("Source text not found for retake.");
+                    }
+                  }} className="flex-1 sm:flex-none px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer animate-pulse">
+                    <Sparkles className="w-4 h-4" /> Easier Test
+                  </button>
+                )}
+                
                 <button onClick={() => {
                   const sourceText = (activeModule as any).sourceText;
                   if (sourceText) {
                     setActiveSession(null); setActiveModule(null); setSessionFinished(false);
-                    generateMaterial(sourceText, 'Practice Test', examConfig, true);
+                    generateMaterial(sourceText, 'Practice Test', examConfig, false);
                   } else {
-                    alert("Source text not found for retake.");
+                    alert("Source text not found for new test.");
                   }
-                }} className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-2 cursor-pointer animate-pulse">
-                  <Sparkles className="w-4 h-4" /> Generate Easier Test
+                }} className="flex-1 sm:flex-none px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+                  <RefreshCw className="w-4 h-4" /> Generate New Test
                 </button>
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -688,7 +739,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   return (
     <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass}`}>
       
-      {/* EXAM SETUP MODAL */}
       {showExamSetup && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className={`max-w-md w-full rounded-3xl p-8 shadow-2xl ${bgCard} animate-in zoom-in-95 duration-200`}>
