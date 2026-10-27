@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Logo } from './Logo';
 import campusBg from '../assets/images/campus_learning_bg_1788508725474.jpg';
+import { getBackendMode } from '../services/auth';
 import {
   Activity,
   Brain,
@@ -15,7 +16,9 @@ import {
   Database,
   CheckCircle2,
   Sliders,
-  Sparkles
+  Sparkles,
+  Cloud,
+  HardDrive
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -23,6 +26,13 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onOpenAuth }) => {
+  const [mode, setMode] = useState<'cloud' | 'local'>('local');
+
+  useEffect(() => {
+    // Determine if we are connected to Supabase or running offline
+    setMode(getBackendMode());
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col selection:bg-blue-600 selection:text-white">
       {/* Top Header Navigation */}
@@ -30,7 +40,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenAuth }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <Logo size="md" />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {/* CLOUD / LOCAL INDICATOR */}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+              mode === 'cloud' 
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                : 'bg-amber-50 text-amber-700 border border-amber-200'
+            }`}>
+              {mode === 'cloud' ? (
+                <><Cloud className="w-3.5 h-3.5" /> Cloud Synced</>
+              ) : (
+                <><HardDrive className="w-3.5 h-3.5" /> Local Mode</>
+              )}
+            </div>
+
+            <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
+
             <button
               id="nav-login-btn"
               onClick={() => onOpenAuth('login')}
@@ -50,9 +75,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenAuth }) => {
         </div>
       </header>
 
-      {/* Hero Section with Clear Background Picture */}
+      {/* Hero Section */}
       <section id="overview" className="relative pt-20 pb-24 overflow-hidden border-b border-slate-200">
-        {/* Background Image Container with Sharp, Clear Presentation */}
         <div className="absolute inset-0 z-0">
           <img
             src={campusBg}
@@ -60,7 +84,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenAuth }) => {
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover object-center"
           />
-          {/* Subtle gradient scrim ensuring crisp text legibility while keeping the background image vivid and clear */}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/65 to-slate-950/45" />
         </div>
 
@@ -253,56 +276,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenAuth }) => {
               <h4 className="font-bold text-slate-900 text-base mb-1">Security & Verification</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Human verification challenge protects student signups, with role-based access control (RBAC) separating students and faculty.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SDLC Methodology & Research Objectives */}
-      <section id="sdlc" className="py-20 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-14">
-            <span className="text-xs uppercase tracking-wider font-bold text-blue-600">Research Roadmap</span>
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-              SDLC Methodology & Project Objectives
-            </h2>
-            <p className="text-slate-600 mt-2 text-sm">
-              Aligned rigorously with the six core academic milestones of the proposal.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="bg-white p-5 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-600 mb-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Month 1 – 2</span>
-              </div>
-              <h4 className="font-bold text-slate-900 text-sm mb-1">Planning & Requirements</h4>
-              <p className="text-xs text-slate-600">
-                Literature review of cognitive load models and definition of sub-second behavioral tracking specifications.
-              </p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-600 mb-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Month 3 – 4</span>
-              </div>
-              <h4 className="font-bold text-slate-900 text-sm mb-1">Architecture & Development</h4>
-              <p className="text-xs text-slate-600">
-                Design of the real-time cognitive evaluation engine, Supabase integration, and interactive learning modules.
-              </p>
-            </div>
-
-            <div className="bg-white p-5 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-600 mb-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Month 5 – 6</span>
-              </div>
-              <h4 className="font-bold text-slate-900 text-sm mb-1">UAT & Academic Evaluation</h4>
-              <p className="text-xs text-slate-600">
-                Controlled testing with student cohorts, telemetry collection, and final thesis empirical evaluation.
               </p>
             </div>
           </div>

@@ -97,7 +97,6 @@ export async function initAuth(): Promise<{ status: BackendStatus; user: User | 
 
   if (mode === 'local') {
     await migrateLegacyLocalAccounts();
-    // Check sessionStorage first (for non-remembered logins), then fallback to storage helper
     const id = sessionStorage.getItem('cogadapt_current_user') || getCurrentUserId();
     const user = id ? getUsers().find(u => u.id === id) ?? null : null;
     
@@ -112,9 +111,15 @@ export async function initAuth(): Promise<{ status: BackendStatus; user: User | 
   const sb = getSupabaseClient()!;
   const { data } = await sb.auth.getSession();
   if (!data.session) return { status, user: null };
+  
   try {
     const user = await fetchProfile(data.session.user.id);
     if (!user) { await sb.auth.signOut(); return { status, user: null }; }
+    
+    // FIX: Patch the user object with the metadata from Supabase (name and phone)
+    user.name = data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || user.name;
+    (user as any).phone = data.session.user.user_metadata?.phone_number || (user as any).phone || '';
+
     await activateCloudUser(user);
     return { status, user };
   } catch {
@@ -139,6 +144,7 @@ export interface SignUpInput {
   name: string;
   email: string;
   password: string;
+  phone?: string; // Added phone
   studentId?: string;
   institution?: string;
 }
@@ -173,15 +179,21 @@ export async function signUp(input: SignUpInput): Promise<SignUpResult> {
     const { data, error } = await sb.auth.signUp({
       email,
       password: input.password,
-      options: { data: { name, student_id: studentId ?? '', institution, department: 'Cognitive Science & Computer Science' } },
+      options: { data: { full_name: name, phone_number: input.phone ?? '', student_id: studentId ?? '', institution, department: 'Cognitive Science & Computer Science' } },
     });
     if (error) throw new AuthError(error.message);
     if (data.user && data.user.identities?.length === 0) {
       throw new AuthError('An account with this email already exists. Please sign in.');
     }
     if (!data.session || !data.user) return { needsEmailConfirmation: true };
+    
     const user = await fetchProfile(data.user.id);
     if (!user) throw new AuthError('Account created but the profile could not be loaded. Run supabase/schema.sql.');
+    
+    // FIX: Patch the name and phone for the newly signed up user
+    user.name = name;
+    (user as any).phone = input.phone || '';
+
     await activateCloudUser(user);
     return { user };
   }
@@ -204,6 +216,8 @@ export async function signUp(input: SignUpInput): Promise<SignUpResult> {
     createdAt: now,
     lastLoginAt: now,
   };
+  (user as any).phone = input.phone || '';
+  
   setLocalCredential(user.id, await makeCredential(input.password));
   const recoveryCode = generateRecoveryCode();
   const rec = readRecovery();
@@ -214,7 +228,6 @@ export async function signUp(input: SignUpInput): Promise<SignUpResult> {
   return { user, recoveryCode };
 }
 
-// UPDATED: Added rememberMe parameter
 export async function signIn(emailRaw: string, password: string, rememberMe: boolean = true): Promise<User> {
   const email = normalizeEmail(emailRaw);
   const emailProblem = validateEmail(email);
@@ -230,14 +243,17 @@ export async function signIn(emailRaw: string, password: string, rememberMe: boo
       recordFailure(email);
       throw new AuthError(/invalid login/i.test(error.message) ? GENERIC_LOGIN_ERROR : error.message);
     }
+    
     const user = await fetchProfile(data.user.id);
     if (!user) {
       await sb.auth.signOut();
       throw new AuthError('No profile found for this account. Ask an administrator to check the database setup.');
     }
     
-    // Supabase defaults to localStorage. If they don't want to be remembered, 
-    // we can add a listener to sign them out on tab close.
+    // FIX: Patch the name and phone for the logging in user
+    user.name = data.user.user_metadata?.full_name || data.user.user_metadata?.name || user.name;
+    (user as any).phone = data.user.user_metadata?.phone_number || (user as any).phone || '';
+    
     if (!rememberMe) {
       window.addEventListener('beforeunload', () => {
         const client = getSupabaseClient();
@@ -262,7 +278,6 @@ export async function signIn(emailRaw: string, password: string, rememberMe: boo
   const updated = { ...user, lastLoginAt: new Date().toISOString() };
   saveUser(updated);
   
-  // Local Mode: Determine where to store the session
   if (rememberMe) {
     setCurrentUserId(updated.id);
     sessionStorage.removeItem('cogadapt_current_user');

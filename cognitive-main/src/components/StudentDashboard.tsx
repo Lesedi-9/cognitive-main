@@ -29,6 +29,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 interface StudentDashboardProps {
   user: User;
+  onUpdateUser: (user: User) => void;
 }
 
 type DashboardTab = 'dashboard' | 'curriculum' | 'library' | 'settings' | 'bookmarks' | 'help';
@@ -132,6 +133,47 @@ const curriculumBase = {
           { id: 'cl6', text: 'What does "return" do in a function?', options: ['Starts a loop', 'Outputs a value from the function', 'Declares a variable', 'Prints to console'], correctAnswerIndex: 1, explanation: 'return exits the function and provides its result.', targetConcept: 'Functions', baselineExpectedSeconds: 20, scaffoldHint: 'It hands back a result.', type: 'mcq' },
         ]
       }
+    ],
+    'System Architecture': [
+      {
+        id: 'cs-sys-01', code: 'CS-104', title: 'System Architecture',
+        description: 'Understand how the app handles cloud connectivity and data persistence.',
+        academicDiscipline: 'Computer Science', estimatedMinutes: 5,
+        questions: [
+          { 
+            id: 'sys1', 
+            text: 'What happens when the CognitiveAdapt system loses connection to the Supabase cloud database?', 
+            options: [
+              'The app crashes and the user loses all progress.', 
+              'The system switches to Local Mode, saving data to the browser and using an offline NLP generator.', 
+              'The system forces a logout and permanently deletes the account.', 
+              'It blocks the screen and waits indefinitely for the connection to return.'
+            ], 
+            correctAnswerIndex: 1, 
+            explanation: 'If the cloud is unreachable, the system gracefully falls back to Local Mode. It uses localStorage for data persistence and a deterministic offline text-parser to generate questions, ensuring the student is never blocked.', 
+            targetConcept: 'Cloud vs Local Fallback', 
+            baselineExpectedSeconds: 20, 
+            scaffoldHint: 'Think about how the app ensures you can keep studying even if your Wi-Fi drops.', 
+            type: 'mcq' 
+          },
+          { 
+            id: 'sys2', 
+            text: 'In Cloud Mode, which technology is responsible for securely managing user authentication and passwords?', 
+            options: [
+              'Browser localStorage', 
+              'Google Gemini API', 
+              'Supabase Auth', 
+              'A local PBKDF2 hash file'
+            ], 
+            correctAnswerIndex: 2, 
+            explanation: 'Supabase Auth handles secure sign-ups, logins, and OTP (One-Time Password) email verification.', 
+            targetConcept: 'Cloud Security', 
+            baselineExpectedSeconds: 15, 
+            scaffoldHint: 'It is the backend-as-a-service provider we use.', 
+            type: 'mcq' 
+          }
+        ]
+      }
     ]
   },
   'Science': {
@@ -184,17 +226,21 @@ const curriculumBase = {
 } as Record<string, Record<string, LearningModule[]>>;
 
 const generateLocalMaterial = (text: string, tool: string, config: any = {}) => {
-  if (!text || text.trim().length < 100) {
-    throw new Error("Not enough text provided. Please paste at least a few paragraphs.");
+  if (!text || text.trim().length < 50) {
+    throw new Error("Not enough text provided. Please paste at least a paragraph.");
   }
 
   const cleanText = text.replace(/(\s+\d+\.?\s*$)/gm, '').replace(/^(TOPIC|CHAPTER|SECTION|UNIT|PART)\s*\d+.*$/gim, ''); 
   
-  let sentences = cleanText.match(/[^.!?\n]+[.!?]+/g) || cleanText.split('\n');
+  let sentences = cleanText.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
   
   sentences = sentences.map(s => s.trim()).filter(s => {
-    return s.length > 30 && s.split(' ').length > 5 && !(s === s.toUpperCase()); 
+    return s.length > 15 && s.split(' ').length > 3; 
   });
+
+  if (sentences.length === 0) {
+    sentences = cleanText.split('\n').map(s => s.trim()).filter(s => s.length > 10);
+  }
 
   if (sentences.length === 0) {
     throw new Error("Could not extract readable sentences from the text. Try a different file or paste text manually.");
@@ -284,7 +330,7 @@ const isCurriculumModule = (mod: LearningModule): boolean => {
   return false;
 };
 
-export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
+export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpdateUser }) => {
   const [sessions, setSessions] = useState<LearningSession[]>([]);
   const [activeTab, setActiveTab] = useState<DashboardTab>('dashboard');
 
@@ -305,8 +351,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const [highContrast, setHighContrast] = useState(false);
 
   // Profile State (Validation)
-  const [profileName, setProfileName] = useState(user.name);
-  const [profilePhone, setProfilePhone] = useState(() => localStorage.getItem(`profile_phone_${user.id}`) || '');
+  const [profileName, setProfileName] = useState(user.name || '');
+  const [profilePhone, setProfilePhone] = useState((user as any).phone || localStorage.getItem(`profile_phone_${user.id}`) || '');
   const [profileError, setProfileError] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
 
@@ -362,7 +408,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     const savedCards = localStorage.getItem(`custom_flashcards_${user.id}`);
     if (savedCards) { try { setCustomFlashcards(JSON.parse(savedCards)); } catch (e) { console.error(e); } }
     
-    // Show tour on first visit
     if (!localStorage.getItem(`tour_seen_${user.id}`)) {
       setShowTour(true);
     }
@@ -372,7 +417,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
   const refreshUserSessions = () => { setSessions(getUserSessions(user.id)); };
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileError('');
     setProfileSuccess('');
@@ -382,9 +427,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
       return;
     }
     
-    // South African Phone Validation (+27 or 0, followed by 6, 7, or 8, then 8 digits)
     const saPhoneRegex = /^(?:\+27|0)[6-8][0-9]{8}$/;
-    const cleanPhone = profilePhone.replace(/\s/g, ''); // Strip spaces for validation
+    const cleanPhone = profilePhone.replace(/\s/g, ''); 
 
     if (cleanPhone && !saPhoneRegex.test(cleanPhone)) {
       setProfileError('Please enter a valid South African phone number (e.g., +27 82 123 4567).');
@@ -392,7 +436,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
     }
 
     localStorage.setItem(`profile_phone_${user.id}`, profilePhone);
-    setProfileSuccess('Profile details verified and saved!');
+    
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      await supabase.from('profiles').update({ full_name: profileName }).eq('id', user.id);
+    }
+    
+    onUpdateUser({ ...user, name: profileName });
+    
+    setProfileSuccess('Profile details saved successfully!');
     setTimeout(() => setProfileSuccess(''), 3000);
   };
 
@@ -464,13 +516,17 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
 
   const speedScore = Math.max(0, Math.min(100, ((40 - avgLatencySec) / 20) * 100));
   
-  let calculatedMastery = Math.min(100, Math.round((overallAccuracy * 0.5) + (speedScore * 0.25) + ((100 - avgCli) * 0.25)));
-
-  if (calibrationScore !== null) {
-    if (completedSessions.length <= 2) {
-      calculatedMastery = Math.round(calibrationScore);
-    } else {
-      calculatedMastery = Math.round((calibrationScore * 0.4) + (calculatedMastery * 0.6));
+  // FIX: Mastery Track calculation
+  let calculatedMastery = 0;
+  if (allResponses.length > 0) {
+    calculatedMastery = Math.min(100, Math.round((overallAccuracy * 0.5) + (speedScore * 0.25) + ((100 - avgCli) * 0.25)));
+    
+    if (calibrationScore !== null) {
+      if (completedSessions.length <= 2) {
+        calculatedMastery = Math.round(calibrationScore);
+      } else {
+        calculatedMastery = Math.round((calibrationScore * 0.4) + (calculatedMastery * 0.6));
+      }
     }
   }
   
@@ -537,7 +593,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
   const cleanExtractedText = (raw: string) => {
     return raw.split('\n').filter(line => {
         const t = line.trim();
-        if (t.length < 20) return false;
+        if (t.length < 15) return false;
         if (/^\d+$/.test(t)) return false;
         if (/\.{3,}\s*\d+$/.test(t)) return false;
         return true;
@@ -626,7 +682,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
       });
 
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("AI generation timed out.")), 4000);
+        setTimeout(() => reject(new Error("AI generation timed out.")), 20000); // 20 SEC TIMEOUT
       });
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
@@ -1008,7 +1064,32 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                   <div className={`hidden md:flex items-center gap-1.5 text-[11px] ${textMuted}`}><Keyboard className="w-3.5 h-3.5" /> 1-4 choose · Enter submit</div>
                 </div>
               )}
+              
               <p className={`text-lg sm:text-xl font-semibold leading-relaxed whitespace-pre-wrap ${textTitle}`}>{currentQuestion.text}</p>
+              
+              {/* HINT BUTTON AND DISPLAY */}
+              {currentQuestion.scaffoldHint && (
+                <div className="mt-2 mb-4">
+                  {!showScaffoldHint ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowScaffoldHint(true)}
+                      className="flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-amber-500/20"
+                    >
+                      <Lightbulb className="w-3.5 h-3.5" />
+                      Need a hint?
+                    </button>
+                  ) : (
+                    <div className={`p-3 rounded-xl border flex items-start gap-2 animate-in fade-in duration-200 ${isDark ? 'bg-amber-900/20 border-amber-700/50' : 'bg-amber-50 border-amber-200'}`}>
+                      <Lightbulb className={`w-4 h-4 shrink-0 mt-0.5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
+                      <p className={`text-xs font-medium ${isDark ? 'text-amber-200' : 'text-amber-800'}`}>
+                        <strong className="font-bold">Hint:</strong> {currentQuestion.scaffoldHint}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {isMCQ && (
                 <div className="space-y-3 pt-2">
                   {currentQuestion.options?.map((opt: string, idx: number) => {
@@ -1577,9 +1658,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
         {activeTab === 'settings' && (
           <div className={`rounded-2xl border p-6 shadow-sm space-y-8 animate-in fade-in duration-300 max-w-3xl ${bgCard}`}>
             
-            {/* Profile / Verification Section */}
+            {/* Profile / Details Section */}
             <div>
-              <h3 className={`text-lg font-bold flex items-center gap-2 ${textTitle}`}><UserIcon className="w-5 h-5 text-blue-500" /> Verify Profile Details</h3>
+              <h3 className={`text-lg font-bold flex items-center gap-2 ${textTitle}`}><UserIcon className="w-5 h-5 text-blue-500" /> Profile Details</h3>
               <form onSubmit={handleProfileSave} className="mt-4 space-y-4">
                 {profileError && <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-bold rounded-xl">{profileError}</div>}
                 {profileSuccess && <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-bold rounded-xl">{profileSuccess}</div>}
@@ -1601,7 +1682,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user }) => {
                   </div>
                 </div>
                 <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl cursor-pointer">
-                  Save & Verify
+                  Save
                 </button>
               </form>
             </div>

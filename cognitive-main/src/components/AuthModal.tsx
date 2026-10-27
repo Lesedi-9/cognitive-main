@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { getSupabaseClient } from '../services/supabase';
-import { Mail, Lock, User, Phone, ArrowRight, ShieldCheck, X } from 'lucide-react';
+import { Mail, Lock, User, Phone, ArrowRight, ShieldCheck, X, Eye, EyeOff } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: 'login' | 'signup';
+  backendMode?: string;
+  recovery?: boolean;
+  onSuccess?: (user: any) => void;
+  onRecoveryDone?: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const [isLogin, setIsLogin] = useState(false);
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login' }) => {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   
+  const [showPassword, setShowPassword] = useState(false);
+
   const [isVerifying, setIsVerifying] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   
@@ -38,15 +45,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     try {
       if (isLogin) {
-        // Handle Login
-        const { error: loginError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
         if (loginError) throw loginError;
-        onClose(); // Close modal on success
+        onClose();
       } else {
-        // Handle Sign Up
         const saPhoneRegex = /^(?:\+27|0)[6-8][0-9]{8}$/;
         const cleanPhone = phone.replace(/\s/g, '');
         
@@ -56,31 +58,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           return;
         }
 
-        // 1. Create User
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              full_name: name,
-              phone_number: cleanPhone,
-            },
-          },
+          options: { data: { full_name: name, phone_number: cleanPhone } },
         });
 
         if (signUpError) throw signUpError;
-
-        // 2. Trigger Phone OTP
-        const { error: otpError } = await supabase.auth.signInWithOtp({
-          phone: cleanPhone,
-        });
-
-        if (otpError) {
-          console.warn("Could not send SMS OTP (Ensure Twilio is configured).", otpError);
-        }
-
         setIsVerifying(true);
-        setMessage('Verification codes sent! Please check your email and phone.');
+        setMessage('Account created! Please check your email for the 6-digit verification code.');
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed.');
@@ -93,14 +79,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const cleanPhone = phone.replace(/\s/g, '');
 
     try {
-      // Verify the Phone OTP (Email is verified via link sent to inbox)
       const { error } = await supabase!.auth.verifyOtp({
-        phone: cleanPhone,
+        email: email,
         token: otpCode,
-        type: 'sms',
+        type: 'signup',
       });
 
       if (error) throw error;
@@ -108,10 +92,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setMessage('Account fully verified! Logging you in...');
       setTimeout(() => {
         onClose();
-        window.location.reload(); 
       }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Invalid verification code.');
+      setError(err.message || 'Invalid verification code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -125,7 +108,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </button>
 
         <h2 className="text-2xl font-extrabold text-white text-center mb-6">
-          {isVerifying ? 'Verify Your Account' : isLogin ? 'Welcome Back' : 'Create an Account'}
+          {isVerifying ? 'Verify Your Email' : isLogin ? 'Welcome Back' : 'Create an Account'}
         </h2>
 
         {error && <div className="p-3 mb-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold">{error}</div>}
@@ -165,22 +148,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <label className="block text-xs font-bold text-slate-400 mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-9 pr-3 py-2.5 bg-[#121212] border border-slate-600 rounded-xl text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••" />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  required 
+                  value={password} 
+                  onChange={e => setPassword(e.target.value)} 
+                  className="w-full pl-9 pr-10 py-2.5 bg-[#121212] border border-slate-600 rounded-xl text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none" 
+                  placeholder="••••••••" 
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
+            {/* CHANGED TEXT HERE */}
             <button type="submit" disabled={loading} className="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
-              {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up & Verify'} <ArrowRight className="w-4 h-4" />
+              {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'} <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerifyOTP} className="space-y-4">
             <div className="text-center mb-6">
               <ShieldCheck className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
-              <p className="text-sm text-slate-300">We sent an SMS to <strong className="text-white">{phone}</strong>. Enter the 6-digit code below.</p>
+              <p className="text-sm text-slate-300">We sent a 6-digit code to <strong className="text-white">{email}</strong>. Enter it below.</p>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1 text-center">SMS Verification Code</label>
+              <label className="block text-xs font-bold text-slate-400 mb-1 text-center">Email Verification Code</label>
               <input type="text" required value={otpCode} onChange={e => setOtpCode(e.target.value)} maxLength={6} className="w-full px-3 py-3 bg-[#121212] border border-slate-600 rounded-xl text-white text-center text-2xl tracking-[0.5em] font-mono focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="000000" />
             </div>
             <button type="submit" disabled={loading} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg">

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Sparkles, Target, Zap, Waves, RotateCcw, Shield, Flame, BookOpen, Vault, Eye, Compass, Moon, Sun, Clock,
-  Lightbulb, Gauge, TrendingUp, AlertTriangle, Award, Lock, Wind, X, ArrowRight, Brain, Trophy,
+  Sparkles, Target, Zap, Waves, RotateCcw, Shield, Flame, BookOpen, Eye, Compass, Moon, Sun, Clock,
+  Lightbulb, Gauge, TrendingUp, AlertTriangle, Award, Lock, Wind, X, Brain, Trophy,
 } from 'lucide-react';
 import type { LearningSession, Question, QuestionResponse } from '../../types';
 import {
-  Achievement, Fingerprint, Insight, LevelInfo, VaultItem, XpBreakdown, archetype, loadZone,
+  Achievement, Fingerprint, Insight, LevelInfo, XpBreakdown, archetype, loadZone,
 } from '../../services/progress';
 
 /* ---------------------------------------------------------------- Hero */
 
 export const ProfileHero: React.FC<{
   name: string; level: LevelInfo; streak: { current: number; best: number; activeToday: boolean };
-  unlocked: number; totalBadges: number; dueCount: number; onReview: () => void;
-}> = ({ name, level, streak, unlocked, totalBadges, dueCount, onReview }) => (
+  unlocked: number; totalBadges: number;
+}> = ({ name, level, streak, unlocked, totalBadges }) => (
   <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-teal-900 text-white p-6 sm:p-8 shadow-lg">
     <div className="absolute -top-24 -right-20 w-80 h-80 rounded-full bg-teal-400/20 blur-3xl" />
     <div className="absolute -bottom-28 left-10 w-72 h-72 rounded-full bg-indigo-500/20 blur-3xl" />
@@ -48,12 +48,6 @@ export const ProfileHero: React.FC<{
       <div className="flex flex-wrap lg:flex-nowrap gap-3">
         <Stat icon={<Flame className="w-4 h-4 text-orange-300" />} value={streak.current} label={streak.current === 1 ? 'day streak' : 'day streak'} sub={streak.activeToday ? 'locked in today' : `best ${streak.best}`} />
         <Stat icon={<Trophy className="w-4 h-4 text-amber-300" />} value={`${unlocked}/${totalBadges}`} label="badges" sub="unlocked" />
-        <button onClick={onReview} disabled={dueCount === 0}
-          className={`min-w-[150px] text-left rounded-2xl p-3.5 border transition-all cursor-pointer disabled:cursor-default ${dueCount > 0 ? 'bg-teal-400/20 border-teal-300/50 hover:bg-teal-400/30' : 'bg-white/5 border-white/10'}`}>
-          <div className="flex items-center gap-1.5 text-xs text-teal-200 font-semibold"><Vault className="w-4 h-4" />Memory Vault</div>
-          <div className="font-display text-2xl font-bold mt-1">{dueCount}</div>
-          <div className="text-[11px] text-slate-300 flex items-center gap-1">{dueCount > 0 ? <>due now <ArrowRight className="w-3 h-3" /></> : 'all caught up'}</div>
-        </button>
       </div>
     </div>
   </section>
@@ -147,43 +141,9 @@ export const InsightsPanel: React.FC<{ items: Insight[] }> = ({ items }) => (
   </Card>
 );
 
-/* ---------------------------------------------------------- Memory Vault */
-
-const BOX_LABEL = ['New / missed', 'Day 1', 'Day 3', 'Week 1', 'Week 2', 'Mastered'];
-
-export const MemoryVaultCard: React.FC<{ items: VaultItem[]; onStart: () => void }> = ({ items, onStart }) => {
-  const due = items.filter(i => i.due);
-  const boxes = [0, 1, 2, 3, 4, 5].map(b => items.filter(i => i.box === b).length);
-  const max = Math.max(1, ...boxes);
-  return (
-    <Card title="Memory Vault" icon={<Vault className="w-4 h-4" />} aside={<span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Spaced repetition</span>}>
-      {items.length === 0 ? <Empty text="Every question you answer enters the Vault and returns at the moment you're about to forget it: after a day, three days, a week, two weeks, a month." /> : (
-        <div className="space-y-4">
-          <div className="flex items-end gap-1.5 h-20" aria-label="Questions per memory box">
-            {boxes.map((n, b) => (
-              <div key={b} className="flex-1 flex flex-col items-center justify-end gap-1">
-                <span className="text-[10px] font-bold text-slate-500">{n}</span>
-                <div className={`w-full rounded-t-md ${b === 5 ? 'bg-emerald-400' : b === 0 ? 'bg-rose-300' : 'bg-teal-400'}`} style={{ height: `${Math.max(4, (n / max) * 52)}px` }} />
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-1.5 text-[9px] text-slate-400 font-semibold text-center -mt-2">{BOX_LABEL.map(l => <span key={l} className="flex-1 leading-tight">{l}</span>)}</div>
-          <button onClick={onStart} disabled={due.length === 0}
-            className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-slate-900 text-white hover:bg-slate-800 disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer disabled:cursor-default transition-colors">
-            {due.length > 0 ? <>Review {Math.min(6, due.length)} due {due.length === 1 ? 'question' : 'questions'} <ArrowRight className="w-4 h-4" /></> : 'Nothing due - your memory is fresh'}
-          </button>
-          {due.length === 0 && items.length > 0 && (
-            <p className="text-[11px] text-slate-500 text-center">Next review {new Date(Math.min(...items.map(i => i.dueAt))).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</p>
-          )}
-        </div>
-      )}
-    </Card>
-  );
-};
-
 /* ---------------------------------------------------------- Achievements */
 
-const badgeIcon = { sparkles: Sparkles, target: Target, zap: Zap, waves: Waves, rotate: RotateCcw, shield: Shield, flame: Flame, book: BookOpen, vault: Vault, eye: Eye, compass: Compass, moon: Moon, sun: Sun } as const;
+const badgeIcon = { sparkles: Sparkles, target: Target, zap: Zap, waves: Waves, rotate: RotateCcw, shield: Shield, flame: Flame, book: BookOpen, eye: Eye, compass: Compass, moon: Moon, sun: Sun } as const;
 
 export const AchievementsGrid: React.FC<{ items: Achievement[] }> = ({ items }) => (
   <Card title="Achievements" icon={<Trophy className="w-4 h-4" />} aside={<span className="text-xs font-bold text-teal-700">{items.filter(i => i.unlocked).length}/{items.length}</span>}>

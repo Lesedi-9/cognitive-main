@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { User } from './types';
 import { initializeStorage } from './services/storage';
 import { initAuth, signOut, onPasswordRecovery, BackendStatus } from './services/auth';
-import { onSyncStatus, SyncState } from './services/supabase';
+import { onSyncStatus, SyncState, getSupabaseClient } from './services/supabase';
 import { HomePage } from './components/HomePage';
 import { AuthModal } from './components/AuthModal';
 import { Navbar } from './components/Navbar';
@@ -16,13 +16,13 @@ export default function App() {
   const [backend, setBackend] = useState<BackendStatus | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | null>(null);
-  // Arriving from a password-reset email puts 'type=recovery' in the URL hash.
   const [recovering, setRecovering] = useState(() => typeof window !== 'undefined' && /type=recovery/.test(window.location.hash));
   const [sync, setSync] = useState<{ state: SyncState; error: string | null }>({ state: 'local', error: null });
 
   useEffect(() => {
     initializeStorage();
     let cancelled = false;
+    
     initAuth()
       .then(({ status, user }) => {
         if (cancelled) return;
@@ -30,6 +30,28 @@ export default function App() {
         setCurrentUser(user);
       })
       .finally(() => !cancelled && setBooting(false));
+
+    // The Auto-Routing Listener
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+           // Fetch the full profile (with roles) from the database
+           const { user } = await initAuth();
+           if (user) {
+             setCurrentUser(user);
+             setAuthModalMode(null);
+           }
+        } else if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+        }
+      });
+      return () => {
+        cancelled = true;
+        subscription.unsubscribe();
+      };
+    }
+
     const offSync = onSyncStatus((state, error) => setSync({ state, error }));
     const offRecovery = onPasswordRecovery(() => setRecovering(true));
     return () => {
@@ -49,6 +71,10 @@ export default function App() {
     setCurrentUser(null);
   };
 
+  const handleUpdateUser = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+  };
+
   if (booting || !backend) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-5">
@@ -58,7 +84,6 @@ export default function App() {
     );
   }
 
-  // Signed out: marketing home page + authentication dialog
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-slate-50">
@@ -84,7 +109,7 @@ export default function App() {
         {currentUser.role === 'admin' ? (
           <AdminPortal currentUser={currentUser} backend={backend} />
         ) : (
-          <StudentDashboard user={currentUser} />
+          <StudentDashboard user={currentUser} onUpdateUser={handleUpdateUser} />
         )}
       </main>
 
