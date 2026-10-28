@@ -12,7 +12,7 @@ import {
   deleteAccount,
   adminSetLocalPassword,
 } from '../services/auth';
-import { probeBackend, BackendProbe, SUPABASE_SQL_SCHEMA, SUPABASE_PROJECT_REF, SUPABASE_URL } from '../services/supabase';
+import { getSupabaseClient, probeBackend, BackendProbe, SUPABASE_SQL_SCHEMA, SUPABASE_PROJECT_REF, SUPABASE_URL } from '../services/supabase';
 import {
   Users, Trash2, Download, Database, Sliders, AlertCircle, KeyRound,
   FileSpreadsheet, Shield, GraduationCap, Copy, Check, Search, RefreshCw,
@@ -82,7 +82,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentUser, backend }
     loadData();
   }, [loadData]);
 
-  // Helper to format names nicely (e.g., "johndoe" -> "Johndoe", "john doe" -> "John Doe")
+  // Helper to format names nicely
   const formatName = (name: string) => {
     if (!name) return 'Unknown User';
     if (!name.includes(' ')) return name.charAt(0).toUpperCase() + name.slice(1);
@@ -100,13 +100,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentUser, backend }
     setPasswordMessage(null);
     try {
       if (isCloud) {
-        // In a real production app, directly changing a cloud password requires a secure Edge Function.
-        // For this demo, we notify the admin that Cloud requires email reset.
-        throw new Error("Cloud mode requires an email reset link due to security policies. Please use Local mode to test direct password resets.");
+        const supabase = getSupabaseClient();
+        if (!supabase) throw new Error("Supabase not configured");
+
+        // Call the Edge Function we just created
+        const { data, error } = await supabase.functions.invoke('admin-reset-password', {
+          body: { userId: editingUser.id, newPassword }
+        });
+
+        if (error) throw new Error(error.message);
+        if (data?.error) throw new Error(data.error);
+        
       } else {
         await adminSetLocalPassword(editingUser.id, newPassword);
-        setPasswordMessage({ ok: true, text: `Password updated for ${formatName(editingUser.name)}.` });
       }
+      
+      setPasswordMessage({ ok: true, text: `Password updated for ${formatName(editingUser.name)}.` });
       setTimeout(() => {
         setEditingUser(null);
         setNewPassword('');
