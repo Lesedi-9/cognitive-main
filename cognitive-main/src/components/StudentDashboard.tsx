@@ -34,7 +34,7 @@ interface StudentDashboardProps {
 
 type DashboardTab = 'dashboard' | 'curriculum' | 'library' | 'settings' | 'bookmarks' | 'help';
 type ThemeMode = 'dark' | 'light';
-type Difficulty = 'introductory' | 'intermediate' | 'advanced';
+type Difficulty = 'introductory' | 'intermediate' | 'advanced' | 'mastered';
 
 interface Flashcard { front: string; back: string; }
 
@@ -134,47 +134,6 @@ const curriculumBase = {
         ]
       }
     ],
-    'System Architecture': [
-      {
-        id: 'cs-sys-01', code: 'CS-104', title: 'System Architecture',
-        description: 'Understand how the app handles cloud connectivity and data persistence.',
-        academicDiscipline: 'Computer Science', estimatedMinutes: 5,
-        questions: [
-          { 
-            id: 'sys1', 
-            text: 'What happens when the CognitiveAdapt system loses connection to the Supabase cloud database?', 
-            options: [
-              'The app crashes and the user loses all progress.', 
-              'The system switches to Local Mode, saving data to the browser and using an offline NLP generator.', 
-              'The system forces a logout and permanently deletes the account.', 
-              'It blocks the screen and waits indefinitely for the connection to return.'
-            ], 
-            correctAnswerIndex: 1, 
-            explanation: 'If the cloud is unreachable, the system gracefully falls back to Local Mode. It uses localStorage for data persistence and a deterministic offline text-parser to generate questions, ensuring the student is never blocked.', 
-            targetConcept: 'Cloud vs Local Fallback', 
-            baselineExpectedSeconds: 20, 
-            scaffoldHint: 'Think about how the app ensures you can keep studying even if your Wi-Fi drops.', 
-            type: 'mcq' 
-          },
-          { 
-            id: 'sys2', 
-            text: 'In Cloud Mode, which technology is responsible for securely managing user authentication and passwords?', 
-            options: [
-              'Browser localStorage', 
-              'Google Gemini API', 
-              'Supabase Auth', 
-              'A local PBKDF2 hash file'
-            ], 
-            correctAnswerIndex: 2, 
-            explanation: 'Supabase Auth handles secure sign-ups, logins, and OTP (One-Time Password) email verification.', 
-            targetConcept: 'Cloud Security', 
-            baselineExpectedSeconds: 15, 
-            scaffoldHint: 'It is the backend-as-a-service provider we use.', 
-            type: 'mcq' 
-          }
-        ]
-      }
-    ]
   },
   'Science': {
     "Physics: Newton's Laws": [
@@ -339,6 +298,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
 
   const [isManualOverride, setIsManualOverride] = useState(false);
   const [manualDifficulty, setManualDifficulty] = useState<Difficulty>('introductory');
+  const [forceIntro, setForceIntro] = useState(false);
 
   const [hasCalibrated, setHasCalibrated] = useState<boolean>(() => localStorage.getItem(`cognitive_calibrated_${user.id}`) === 'true');
   const [lastCalibration, setLastCalibration] = useState<Difficulty | null>(null);
@@ -400,6 +360,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const size = fontSize === 'large' ? '18px' : fontSize === 'x-large' ? '20px' : '16px';
+    document.documentElement.style.fontSize = size;
+    return () => { document.documentElement.style.fontSize = '16px'; };
+  }, [fontSize]);
 
   useEffect(() => {
     refreshUserSessions();
@@ -501,11 +467,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
   };
 
   const resetCalibration = () => {
-    setHasCalibrated(false);
-    setLastCalibration(null);
-    setCalibrationScore(null);
-    localStorage.removeItem(`cognitive_calibrated_${user.id}`);
-    localStorage.removeItem(`calibration_score_${user.id}`);
+    if (window.confirm("Are you sure you want to reset your calibration? This will force your difficulty back to Introductory. Your past test history will be saved.")) {
+      setHasCalibrated(false);
+      setLastCalibration(null);
+      setCalibrationScore(null);
+      localStorage.removeItem(`cognitive_calibrated_${user.id}`);
+      localStorage.removeItem(`calibration_score_${user.id}`);
+      setForceIntro(true);
+      alert("Calibration reset successfully. Your next test will be Introductory difficulty.");
+    }
   };
 
   const completedSessions = sessions.filter(s => s.status === 'completed');
@@ -532,8 +502,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
   
   const masteryPercentage = calculatedMastery;
 
-  const derivedDifficulty: Difficulty = masteryPercentage >= 67 ? 'advanced' : masteryPercentage >= 34 ? 'intermediate' : 'introductory';
-  const currentDifficulty: Difficulty = isManualOverride ? manualDifficulty : derivedDifficulty;
+  const derivedDifficulty: Difficulty = masteryPercentage >= 100 ? 'mastered' : masteryPercentage >= 67 ? 'advanced' : masteryPercentage >= 34 ? 'intermediate' : 'introductory';
+  const currentDifficulty: Difficulty = forceIntro ? 'introductory' : (isManualOverride ? manualDifficulty : derivedDifficulty);
 
   const streak = useMemo(() => {
     if (completedSessions.length === 0) return { current: 0, best: 0, activeToday: false };
@@ -666,8 +636,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
     let parsedData = null;
 
     const safeConfig = {
-        questions: Math.max(1, Math.min(20, Number(config.questions) || 10)),
-        timer: Math.max(1, Number(config.timer) || 30),
+        questions: Math.max(5, Math.min(20, Number(config.questions) || 10)),
+        timer: Math.max(5, Math.min(60, Number(config.timer) || 30)),
         difficulty: isEasier ? 'introductory' : currentDifficulty
     };
 
@@ -682,7 +652,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
       });
 
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("AI generation timed out.")), 20000); // 20 SEC TIMEOUT
+        setTimeout(() => reject(new Error("AI generation timed out.")), 20000); 
       });
 
       const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
@@ -744,6 +714,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
 
   const handleStartModule = (mod: LearningModule, timerMins: number = 0) => {
     if (!mod.questions || mod.questions.length === 0) { alert("No questions available for this module."); return; }
+    setForceIntro(false); 
     const newSessionId = `ses-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
     const newSession: LearningSession = {
       id: newSessionId, userId: user.id, userEmail: user.email, userName: user.name,
@@ -877,7 +848,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
     document.body.removeChild(link);
   };
 
-  const fontClass = fontSize === 'large' ? 'text-[17px]' : fontSize === 'x-large' ? 'text-[19px]' : 'text-base';
   const contrastClass = highContrast ? 'contrast-125 saturate-150' : '';
   const bgMain = isDark ? 'bg-[#121212] text-slate-100' : 'bg-slate-50 text-slate-900';
   const bgCard = isDark ? 'bg-[#1e1e24] border-[#2e2e38]' : 'bg-white border-slate-200';
@@ -895,7 +865,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
     const scorePct = Math.round((session.responses.filter(r => r.isCorrect).length / session.responses.length) * 100);
 
     return (
-      <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass}`}>
+      <div className={`min-h-screen ${bgMain} ${contrastClass}`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <button onClick={() => setViewingPastSession(null)} className={`flex items-center gap-1 text-sm font-semibold mb-2 cursor-pointer ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
             <ArrowLeft className="w-4 h-4" /> Back to Library
@@ -1008,7 +978,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
   if (activeSession && activeModule && !sessionFinished) {
     const isMCQ = currentQuestion?.type === 'mcq' || !currentQuestion?.type;
     return (
-      <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass} relative`}>
+      <div className={`min-h-screen ${bgMain} ${contrastClass} relative`}>
         {showIntervention && (
           <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="max-w-md w-full bg-[#1e1e24] border border-slate-700 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
@@ -1150,7 +1120,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
     const needsRetake = isExam && scorePct < 50;
 
     return (
-      <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass}`}>
+      <div className={`min-h-screen ${bgMain} ${contrastClass}`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <div className={`rounded-2xl border p-8 shadow-sm space-y-6 ${bgCard}`}>
             <div className={`flex items-center gap-3 border-b pb-6 ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
@@ -1255,7 +1225,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
 
   // ---- MAIN TABBED DASHBOARD VIEW ----
   return (
-    <div className={`min-h-screen ${bgMain} ${fontClass} ${contrastClass}`}>
+    <div className={`min-h-screen ${bgMain} ${contrastClass}`}>
 
       {showTour && (
         <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1293,12 +1263,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
 
             <div className="space-y-4">
               <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
-                <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Number of Questions</label>
-                <input type="number" value={examConfig.questions} onChange={e => setExamConfig({...examConfig, questions: Number(e.target.value)})} className={`w-full bg-transparent text-lg font-bold outline-none ${textTitle}`} min="1" max="20" />
+                <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Number of Questions (Min 5)</label>
+                <input type="number" value={examConfig.questions} onChange={e => setExamConfig({...examConfig, questions: Math.max(5, Math.min(20, Number(e.target.value)))})} className={`w-full bg-transparent text-lg font-bold outline-none ${textTitle}`} min="5" max="20" />
               </div>
               <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#121212] border-[#2e2e38]' : 'bg-slate-50 border-slate-200'}`}>
-                <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Timer (minutes)</label>
-                <input type="number" value={examConfig.timer} onChange={e => setExamConfig({...examConfig, timer: Number(e.target.value)})} className={`w-full bg-transparent text-lg font-bold outline-none ${textTitle}`} min="1" max="120" />
+                <label className={`block text-xs font-bold mb-1 ${textMuted}`}>Timer (minutes) (Min 5, Max 60)</label>
+                <input type="number" value={examConfig.timer} onChange={e => setExamConfig({...examConfig, timer: Math.max(5, Math.min(60, Number(e.target.value)))})} className={`w-full bg-transparent text-lg font-bold outline-none ${textTitle}`} min="5" max="60" />
               </div>
             </div>
 
@@ -1600,6 +1570,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
                                     <Play className="w-3 h-3" /> Resume
                                   </span>
                                 )}
+                                {pastSession && !inProgressSession && (
+                                  <span className="flex items-center gap-1 text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 px-2 py-0.5 rounded-full">
+                                    <CheckCircle2 className="w-3 h-3" /> Done
+                                  </span>
+                                )}
                                 <button
                                   onClick={(e) => handleDeleteModule(mod.id, e)}
                                   className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
@@ -1614,7 +1589,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
                             </p>
                             {pastSession && !inProgressSession && (
                               <div className="flex gap-2 mt-2">
-                                <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400 px-2 py-0.5 rounded-full">
                                   Score: {Math.round((pastSession.responses.filter(r => r.isCorrect).length / pastSession.responses.length) * 100)}%
                                 </span>
                               </div>
@@ -1729,9 +1704,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onUpda
                 </div>
               </div>
               <div className="mt-3 flex gap-3">
-                <button onClick={() => { setActiveTab('curriculum'); setSelectedSubject(null); }} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5" /> Take Assessment
-                </button>
                 <button onClick={resetCalibration} className={`px-4 py-2 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 border ${isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-600 hover:bg-slate-100'}`}>
                   <Trash2 className="w-3.5 h-3.5" /> Reset Calibration
                 </button>
